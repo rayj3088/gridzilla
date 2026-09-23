@@ -1,0 +1,181 @@
+# GridZilla source switches, exported 2026-09-22
+# Read by the Python engine (universal_ingest.py). API keys are never exported.
+sources:
+  - id: duke_headroom
+    organization: "Duke Nicholas Institute"
+    dataset: "Flexible headroom by grid region"
+    layer: supply
+    mode: snapshot
+    enabled: true
+    url: https://www.utilitydive.com/news/us-grid-headroom-flexible-load-data-center-ai-ev-duke-report/739767/
+  - id: cbre_markets
+    organization: "CBRE Research"
+    dataset: "Data center markets: inventory and construction"
+    layer: demand
+    mode: snapshot
+    enabled: true
+    url: https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026
+  - id: hifld_lines
+    organization: "HIFLD via ArcGIS"
+    dataset: "Transmission lines, 345 kV and up"
+    layer: supply
+    mode: browser
+    enabled: true
+    url: https://services2.arcgis.com/LYMgRMwHfrWWEg3s/arcgis/rest/services/HIFLD_US_Electric_Power_Transmission_Lines/FeatureServer/0/query
+  - id: hifld_subs
+    organization: "HIFLD via ArcGIS"
+    dataset: "Electric substations"
+    layer: supply
+    mode: browser
+    enabled: true
+    url: https://services5.arcgis.com/HDRa0B57OVrv2E1q/arcgis/rest/services/Electric_Substations/FeatureServer/0/query
+  - id: gridstatus
+    organization: "GridStatus.io"
+    dataset: "Real-time ISO load, frequency, nodal prices"
+    layer: supply
+    mode: engine
+    enabled: false
+    url: https://www.gridstatus.io
+    needs_key: true
+  - id: lbnl_queued_up
+    organization: "Lawrence Berkeley National Laboratory"
+    dataset: "Queued Up: interconnection queues"
+    layer: supply
+    mode: engine
+    enabled: true
+    url: https://emp.lbl.gov/queues
+  - id: eia_open_data
+    organization: "U.S. Energy Information Administration"
+    dataset: "Open Data API"
+    layer: supply
+    mode: engine
+    enabled: false
+    url: https://api.eia.gov/v2/
+    needs_key: true
+  - id: hifld
+    organization: "U.S. Government"
+    dataset: "Homeland Infrastructure Foundation-Level Data"
+    layer: supply
+    mode: engine
+    enabled: true
+    url: https://hifld-geoplatform.opendata.arcgis.com/
+  - id: aterio_cleanview
+    organization: "Aterio / Cleanview"
+    dataset: "Data center pipeline: operational, construction, announced"
+    layer: demand
+    mode: engine
+    enabled: false
+    needs_key: true
+  - id: nrel_data_centers
+    organization: "NREL"
+    dataset: "U.S. data centers against high-voltage lines"
+    layer: demand
+    mode: engine
+    enabled: true
+  - id: baker_data_centers
+    organization: "Baker Institute"
+    dataset: "U.S. Data Centers and Infrastructure map"
+    layer: demand
+    mode: engine
+    enabled: true
+  - id: wri_aqueduct
+    organization: "World Resources Institute"
+    dataset: "Aqueduct water risk"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://www.wri.org/aqueduct
+  - id: usgs_water
+    organization: "U.S. Geological Survey"
+    dataset: "Water Data"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://api.waterdata.usgs.gov/
+  - id: noaa_ncei
+    organization: "NOAA"
+    dataset: "National Centers for Environmental Information"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://www.ncei.noaa.gov/
+  - id: fema_nri
+    organization: "FEMA"
+    dataset: "National Risk Index"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://hazards.fema.gov/nri/
+  - id: epa
+    organization: "EPA"
+    dataset: "Environmental data APIs"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://www.epa.gov/data/application-programming-interface-api
+  - id: usfws_nwi
+    organization: "U.S. Fish and Wildlife Service"
+    dataset: "National Wetlands Inventory"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://www.fws.gov/program/national-wetlands-inventory
+  - id: usda_ssurgo
+    organization: "USDA NRCS"
+    dataset: "SSURGO soils"
+    layer: risk
+    mode: engine
+    enabled: true
+    url: https://www.nrcs.usda.gov/resources/data-and-reports/soil-survey-geographic-database-ssurgo
+  - id: usgs_national_map
+    organization: "U.S. Geological Survey"
+    dataset: "National Map"
+    layer: context
+    mode: engine
+    enabled: true
+    url: https://www.usgs.gov/programs/national-geospatial-program/national-map
+  - id: usgs_3dep
+    organization: "U.S. Geological Survey"
+    dataset: "3D Elevation Program"
+    layer: context
+    mode: engine
+    enabled: true
+    url: https://www.usgs.gov/3d-elevation-program
+  - id: census
+    organization: "U.S. Census Bureau"
+    dataset: "Census API"
+    layer: context
+    mode: engine
+    enabled: false
+    url: https://api.census.gov/
+    needs_key: true
+  - id: bea
+    organization: "Bureau of Economic Analysis"
+    dataset: "BEA API"
+    layer: context
+    mode: engine
+    enabled: false
+    url: https://apps.bea.gov/API/
+    needs_key: true
+  - id: bls
+    organization: "Bureau of Labor Statistics"
+    dataset: "BLS API"
+    layer: context
+    mode: engine
+    enabled: false
+    url: https://www.bls.gov/developers/
+    needs_key: true
+  - id: fcc
+    organization: "Federal Communications Commission"
+    dataset: "Broadband Data Collection"
+    layer: context
+    mode: engine
+    enabled: true
+    url: https://www.fcc.gov/broadband-data-collection
+  - id: sec_edgar
+    organization: "Securities and Exchange Commission"
+    dataset: "EDGAR filings"
+    layer: context
+    mode: engine
+    enabled: true
+    url: https://www.sec.gov/edgar

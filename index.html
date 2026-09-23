@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GridZilla: where AI compute can plug in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== Theme tokens: light default, dark by system or data-theme ===== */
+:root{
+  --bg:#E9EEF2; --surface:#FFFFFF; --surface-2:#DDE5EB; --ink:#0F1B26; --muted:#52667A;
+  --rule:#C5D0DA; --cyan:#0B8497; --amber:#A8680F; --red:#C81E36; --green:#16875B;
+  --queue:#C4CDD5; --land:#D3DCE3; --shadow:0 1px 0 rgba(15,27,38,.06);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1520; --surface:#111E2B; --surface-2:#18293A; --ink:#E4ECF3; --muted:#8DA1B3;
+    --rule:#243A4F; --cyan:#3FD0E0; --amber:#F2B134; --red:#FF4D5E; --green:#3DDC97;
+    --queue:#2B3D4F; --land:#1A2B3C; --shadow:none; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1520; --surface:#111E2B; --surface-2:#18293A; --ink:#E4ECF3; --muted:#8DA1B3;
+  --rule:#243A4F; --cyan:#3FD0E0; --amber:#F2B134; --red:#FF4D5E; --green:#3DDC97;
+  --queue:#2B3D4F; --land:#1A2B3C; --shadow:none; color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.display{font-family:"Big Shoulders Display","Arial Narrow",Impact,sans-serif}
+
+/* ===== Header ===== */
+.top{padding:14px 18px 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 16px}
+.wordmark{font-weight:900;font-size:38px;letter-spacing:.04em;line-height:1}
+.tag{color:var(--muted);font-size:14px}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--rule);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px}
+.headline{font-weight:700;font-size:clamp(22px,3.4vw,36px);line-height:1.08;margin:6px 18px 4px;max-width:34ch}
+.headline b{font-weight:900}
+.subline{margin:0 18px 12px;color:var(--muted);max-width:70ch}
+
+/* ===== Layout ===== */
+.layout{display:grid;grid-template-columns:minmax(300px,390px) minmax(0,1fr);grid-template-areas:"panel map" "panel results";gap:12px;padding:0 12px 12px;align-items:start}
+.layout>*{min-width:0}
+@media (max-width:860px){.layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"map" "panel" "results"}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.mapwrap{grid-area:map;position:relative;overflow:hidden}
+#map{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none}
+.maptools{position:absolute;top:8px;right:8px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.maptools button,.maptools select{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer}
+.mode{position:absolute;top:10px;left:12px;font-size:12px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 12px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.info{position:absolute;left:10px;bottom:10px;max-width:min(360px,calc(100% - 20px));background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:13px;display:none}
+.info.show{display:block}
+.info h3{margin:0 0 4px;font-size:15px}
+.info .x{position:absolute;top:4px;right:6px;border:0;background:none;cursor:pointer;font-size:18px;line-height:1}
+
+/* ===== Map marks ===== */
+.state{stroke:var(--surface);stroke-width:.8;cursor:pointer}
+.state:hover{stroke:var(--ink);stroke-width:1.2}
+.tile-label{font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;text-anchor:middle}
+.region-label{font-family:"Big Shoulders Display","Arial Narrow",sans-serif;font-weight:900;font-size:22px;fill:var(--ink);opacity:.72;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:var(--surface);stroke-width:3px}
+.tline{fill:none;stroke:var(--cyan);stroke-width:.8;opacity:.8;pointer-events:none}
+.sub{fill:var(--amber);opacity:.85;pointer-events:none}
+.market{fill:var(--red);fill-opacity:.8;stroke:var(--surface);stroke-width:1.2;cursor:pointer}
+.market-uc{fill:none;stroke:var(--red);stroke-dasharray:3 2;stroke-width:1.4;pointer-events:none}
+.site{fill:var(--ink);stroke:var(--surface);stroke-width:1.2;cursor:pointer}
+
+/* ===== Panel ===== */
+.panel{grid-area:panel;overflow:hidden}
+.tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--rule)}
+.tabs button{flex:1 0 auto;background:none;border:0;padding:11px 12px;cursor:pointer;color:var(--muted);font-weight:500}
+.tabs button[aria-selected="true"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--cyan)}
+.tab{padding:14px 16px 18px;display:none}
+.tab.on{display:block}
+.tab h2{font-size:17px;margin:14px 0 6px}
+.tab h2:first-child{margin-top:0}
+.hint{color:var(--muted);font-size:13px;margin:4px 0 10px}
+.field{margin:12px 0}
+.field label{display:flex;justify-content:space-between;gap:8px;font-weight:500}
+.field output{font-weight:600}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:6px}
+.seg button{border:1px solid var(--rule);background:var(--surface-2);border-radius:6px;padding:7px 6px;cursor:pointer;font-size:13px}
+.seg button[aria-pressed="true"]{border-color:var(--cyan);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cyan)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row .t{min-width:0}
+.row .t b{display:block;font-weight:500}
+.row .t small{color:var(--muted);display:block;font-size:12px;overflow-wrap:anywhere}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--rule)}
+.stat b{font-weight:600}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.btn{border:1px solid var(--rule);background:var(--surface-2);border-radius:6px;padding:7px 11px;cursor:pointer;font-size:13px}
+.btn.primary{background:var(--cyan);border-color:var(--cyan);color:var(--surface)}
+.switch{position:relative;display:inline-block;width:40px;height:23px;flex:0 0 auto}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch span{position:absolute;inset:0;background:var(--queue);border-radius:23px;transition:background .15s;pointer-events:none}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.switch input:checked+span{background:var(--cyan)}
+.switch input:checked+span::after{transform:translateX(17px)}
+.switch input:focus-visible+span{outline:2px solid var(--cyan);outline-offset:2px}
+.badge{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--rule);color:var(--muted);margin-left:4px;vertical-align:1px}
+.badge.live{color:var(--green);border-color:var(--green)}
+.badge.err{color:var(--red);border-color:var(--red)}
+.badge.snap{color:var(--cyan);border-color:var(--cyan)}
+.keyin{width:100%;margin-top:4px;padding:4px 6px;border:1px solid var(--rule);border-radius:5px;background:var(--surface-2);font-size:12px}
+.tier{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin:8px 0}
+.tier h3{margin:0;font-size:15px}
+.tier .price{font-weight:600}
+.tier ul{margin:6px 0 0;padding-left:18px;font-size:13px}
+.note{font-size:12px;color:var(--muted)}
+
+/* ===== Results ===== */
+.results{grid-area:results;padding:12px 14px}
+.results h2{font-size:17px;margin:0 0 6px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:500;color:var(--muted);font-size:12px}
+tr.total td{font-weight:600;border-bottom:0}
+.fit{color:var(--green);font-weight:600}
+.nofit{color:var(--red);font-weight:600}
+footer{padding:4px 18px 24px;color:var(--muted);font-size:12px}
+footer p{margin:4px 0;max-width:90ch}
+dialog{border:1px solid var(--rule);border-radius:10px;background:var(--surface);color:var(--ink);width:min(640px,92vw);padding:14px}
+dialog textarea{width:100%;height:50vh;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);border:1px solid var(--rule);border-radius:6px;padding:8px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:8px 14px;border-radius:6px;font-size:14px;display:none;z-index:9}
+.toast.show{display:block}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.panel,.maptools,.theme-btn,.info,footer .noprint{display:none!important}.layout{grid-template-columns:1fr;grid-template-areas:"map" "results"}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="wordmark display">GRIDZILLA</span>
+  <span class="tag">Grid and AI compute intelligence</span>
+  <button class="theme-btn" id="themeBtn" type="button">Theme</button>
+</header>
+<p class="headline display" id="headline" aria-live="polite"></p>
+<p class="subline" id="subline"></p>
+
+<main class="layout">
+  <section class="mapwrap card" aria-label="Map">
+    <span class="mode" id="mapMode"></span>
+    <div class="maptools">
+      <select id="colorBy" aria-label="Color states by">
+        <option value="supply">Color: supply headroom</option>
+        <option value="risk">Color: risk</option>
+        <option value="none">Color: none</option>
+      </select>
+      <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
+      <button type="button" id="zoomOut" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="zoomReset">Reset</button>
+    </div>
+    <svg id="map" viewBox="0 0 975 610" role="img" aria-label="United States map of grid headroom, data center markets and sites"></svg>
+    <div class="info" id="info" role="dialog" aria-live="polite"><button class="x" id="infoClose" aria-label="Close">&times;</button><div id="infoBody"></div></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <aside class="panel card">
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="simulate">Simulate</button>
+      <button role="tab" data-tab="layers">Layers</button>
+      <button role="tab" data-tab="sources">Sources</button>
+      <button role="tab" data-tab="sites">Sites</button>
+      <button role="tab" data-tab="plans">Plans</button>
+    </div>
+
+    <div class="tab" id="tab-simulate" role="tabpanel">
+      <h2>Your campus</h2>
+      <div class="field">
+        <label for="mw">Campus size <output id="mwOut"></output></label>
+        <input type="range" id="mw" min="50" max="2000" step="50">
+      </div>
+      <div class="field">
+        <label for="eff">Architecture efficiency <output id="effOut"></output></label>
+        <input type="range" id="eff" min="0" max="95" step="5">
+        <p class="hint">A what-if: how much less grid power your hardware needs for the same compute. The 80% preset is GridZilla's design target, not a measured result.</p>
+        <div class="btns"><button class="btn" type="button" data-eff="0">Standard (0%)</button><button class="btn" type="button" data-eff="80">Design target (80%)</button></div>
+      </div>
+      <div class="field">
+        <label>Grid service</label>
+        <div class="seg" id="flexSeg"></div>
+        <p class="hint">Flexible service means agreeing to be cut back a small share of the year. Utilities only count flexibility they can verify (FLEX-1).</p>
+      </div>
+      <div class="field">
+        <label style="justify-content:flex-start;gap:10px"><span class="switch"><input type="checkbox" id="subPipe"><span></span></span> Subtract tracked construction from headroom</label>
+      </div>
+      <h2>Per campus</h2>
+      <div class="stat"><span>Grid power needed</span><b id="needOut"></b></div>
+      <div class="stat"><span>Negatokens (power freed)</span><b id="freedOut"></b></div>
+      <div class="btns">
+        <button class="btn primary" type="button" id="reportBtn">Copy report</button>
+        <button class="btn" type="button" id="printBtn">Print or save PDF</button>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-layers" role="tabpanel">
+      <h2>Demand</h2>
+      <div class="row"><div class="t"><b>Data center markets</b><small>Inventory and construction, CBRE</small></div><label class="switch"><input type="checkbox" data-layer="markets" aria-label="Data center markets"><span></span></label></div>
+      <div class="row"><div class="t"><b>My sites</b><small>From the Sites tab</small></div><label class="switch"><input type="checkbox" data-layer="sites" aria-label="My sites"><span></span></label></div>
+      <h2>Supply</h2>
+      <div class="row"><div class="t"><b>Flexible headroom by grid region</b><small>Duke Nicholas Institute, 2025</small></div><label class="switch"><input type="checkbox" data-layer="supply" aria-label="Headroom"><span></span></label></div>
+      <div class="row"><div class="t"><b>Transmission lines, 345 kV and up</b><small>Live source; switch it on in Sources</small></div><label class="switch"><input type="checkbox" data-layer="lines" aria-label="Transmission lines"><span></span></label></div>
+      <div class="row"><div class="t"><b>Substations</b><small>Live source; switch it on in Sources</small></div><label class="switch"><input type="checkbox" data-layer="subs" aria-label="Substations"><span></span></label></div>
+      <h2>Risk</h2>
+      <p class="hint">Water stress, zoning friction and incentives, scored 0 (easy) to 5 (hard) per state. Import your own scores, or load demo values to see the layer work.</p>
+      <div class="btns">
+        <button class="btn" type="button" id="riskImportBtn">Import risk CSV</button>
+        <button class="btn" type="button" id="riskDemoBtn">Load demo values</button>
+        <button class="btn" type="button" id="riskClearBtn">Clear</button>
+      </div>
+      <p class="note">CSV columns: state, water, zoning, incentives. Example row: VA,2,4,1</p>
+      <p class="note" id="riskStatus"></p>
+    </div>
+
+    <div class="tab" id="tab-sources" role="tabpanel">
+      <p class="hint">Every data source has one switch. Built-in snapshots work anywhere. Live sources load in your browser when this file runs on your computer or your own website. Engine sources run in the Python engine; copy the switches over, then import its output here.</p>
+      <div class="btns">
+        <button class="btn" type="button" id="yamlBtn">Copy sources.yaml</button>
+        <button class="btn" type="button" id="engineImportBtn">Import engine output</button>
+      </div>
+      <div id="sourceList"></div>
+    </div>
+
+    <div class="tab" id="tab-sites" role="tabpanel">
+      <p class="hint">Rank candidate sites against the current scenario. CSV columns: name, lat, lon, mw, and optionally state.</p>
+      <div class="btns">
+        <button class="btn" type="button" id="siteImportBtn">Import sites CSV</button>
+        <button class="btn" type="button" id="siteSampleBtn">Load sample sites</button>
+        <button class="btn" type="button" id="siteCopyBtn">Copy ranking</button>
+        <button class="btn" type="button" id="siteClearBtn">Clear</button>
+      </div>
+      <div class="field">
+        <label for="siteForm">Add one site</label>
+        <form id="siteForm" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <input class="keyin" name="name" placeholder="Name" required>
+          <input class="keyin" name="mw" type="number" min="1" placeholder="MW" required>
+          <input class="keyin" name="lat" type="number" step="any" placeholder="Latitude" required>
+          <input class="keyin" name="lon" type="number" step="any" placeholder="Longitude" required>
+          <input class="keyin" name="state" placeholder="State (e.g. TX)" maxlength="2">
+          <button class="btn" type="submit">Add site</button>
+        </form>
+      </div>
+      <div class="tablewrap" id="siteTable"></div>
+    </div>
+
+    <div class="tab" id="tab-plans" role="tabpanel">
+      <p class="hint">The app itself is free. The paid product is the API.</p>
+      <div id="tiers"></div>
+      <div id="paypal-button-container-P-1C974468AD0139036NKZ6X6I"></div>
+      <script src="https://www.paypal.com/sdk/js?client-id=BAAUmQH1jGTWUJ49xNNnqyxVQOT1Bh4Qsmal7JB0tvKNlTouIT_pv9oa4z30mspb__VzVkTvOJ_nTJnWvc&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+      <script>
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'white',
+                layout: 'vertical',
+                label: 'subscribe'
+            },
+            createSubscription: function(data, actions) {
+              return actions.subscription.create({
+                /* Creates the subscription */
+                plan_id: 'P-1C974468AD0139036NKZ6X6I'
+              });
+            },
+            onApprove: function(data, actions) {
+              alert(data.subscriptionID); // You can add optional success message for the subscriber here
+            }
+        }).render('#paypal-button-container-P-1C974468AD0139036NKZ6X6I'); // Renders the PayPal button
+      </script>
+    </div>
+  </aside>
+
+  <section class="results card" aria-label="Results by grid region">
+    <h2>Headroom by grid region</h2>
+    <div class="tablewrap"><table id="regionTable"></table></div>
+    <p class="note" id="regionNote"></p>
+  </section>
+</main>
+
+<footer>
+  <p>Data: Duke Nicholas Institute, Rethinking Load Growth (Feb 2025); CBRE North America Data Center Trends (H2 2025, Q1 2026, H1 2026). Headroom is a system-level, first-order estimate, not a study of any single interconnection point. State shading uses each state's main grid region and is approximate. Values for 0.25% and 1% are scaled from national totals.</p>
+  <p class="noprint">Free open core. Support development: <a href="https://paypal.me/rayj3088" target="_blank" rel="noopener">paypal.me/rayj3088</a></p>
+</footer>
+
+<dialog id="copyDialog"><p style="margin:0 0 8px">Copied to your clipboard. If your browser blocked that, select the text below.</p><textarea id="copyText" readonly></textarea><div class="btns"><button class="btn" type="button" id="copyClose">Close</button></div></dialog>
+<input type="file" id="fileIn" accept=".csv,.json,.txt" hidden>
+<div class="toast" id="toast" role="status"></div>
+
+<!-- Optional enhancements: a real US map. The app runs fully without them. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datamaps@0.5.9/dist/datamaps.usa.min.js"></script>
+<script>
+(function () {
+'use strict';
+
+/* =====================================================================
+   1. CONFIG: scenario options. Add a service level here and it appears
+   in the Simulate tab automatically.
+   ===================================================================== */
+const STORAGE_KEY = 'gridzilla:v1';
+const FLEX = {
+  firm: { label: 'Firm', long: 'firm service', scale: null },
+  p025: { label: 'Flexible 0.25%', long: '0.25% curtailment', scale: 76 / 98 },
+  p05:  { label: 'Flexible 0.5%', long: '0.5% curtailment', scale: 1 },
+  p1:   { label: 'Flexible 1%', long: '1% curtailment', scale: 126 / 98 }
+};
+
+/* =====================================================================
+   2. SNAPSHOT DATA: works offline. The engine or live sources can
+   replace any of it (see section 5).
+   ===================================================================== */
+// Duke Nicholas Institute (2025): headroom at 0.5% curtailment, in GW.
+// "OTHER" = 98 GW national total minus the five named regions.
+const REGIONS = [
+  { id: 'PJM', name: 'PJM', h05: 18, center: [-79.3, 39.9], note: '13 states and DC' },
+  { id: 'MISO', name: 'MISO', h05: 15, center: [-90.6, 41.2], note: 'Midwest to Louisiana' },
+  { id: 'ERCOT', name: 'ERCOT', h05: 10, center: [-98.9, 31.3], note: 'Most of Texas' },
+  { id: 'SPP', name: 'SPP', h05: 10, center: [-98.4, 37.9], note: 'Central plains' },
+  { id: 'SOCO', name: 'Southern Co.', h05: 8, center: [-85.4, 32.7], note: 'Georgia, Alabama, Mississippi' },
+  { id: 'OTHER', name: 'Other 17 regions', h05: 37, center: null, note: 'Derived: 98 GW total minus the five above' }
+];
+// Name and approximate main grid region per state.
+const STATES = {AL:['Alabama','SOCO'],AK:['Alaska','OTHER'],AZ:['Arizona','OTHER'],AR:['Arkansas','MISO'],CA:['California','OTHER'],CO:['Colorado','OTHER'],CT:['Connecticut','OTHER'],DE:['Delaware','PJM'],DC:['District of Columbia','PJM'],FL:['Florida','OTHER'],GA:['Georgia','SOCO'],HI:['Hawaii','OTHER'],ID:['Idaho','OTHER'],IL:['Illinois','PJM'],IN:['Indiana','MISO'],IA:['Iowa','MISO'],KS:['Kansas','SPP'],KY:['Kentucky','OTHER'],LA:['Louisiana','MISO'],ME:['Maine','OTHER'],MD:['Maryland','PJM'],MA:['Massachusetts','OTHER'],MI:['Michigan','MISO'],MN:['Minnesota','MISO'],MS:['Mississippi','MISO'],MO:['Missouri','MISO'],MT:['Montana','OTHER'],NE:['Nebraska','SPP'],NV:['Nevada','OTHER'],NH:['New Hampshire','OTHER'],NJ:['New Jersey','PJM'],NM:['New Mexico','OTHER'],NY:['New York','OTHER'],NC:['North Carolina','OTHER'],ND:['North Dakota','MISO'],OH:['Ohio','PJM'],OK:['Oklahoma','SPP'],OR:['Oregon','OTHER'],PA:['Pennsylvania','PJM'],RI:['Rhode Island','OTHER'],SC:['South Carolina','OTHER'],SD:['South Dakota','SPP'],TN:['Tennessee','OTHER'],TX:['Texas','ERCOT'],UT:['Utah','OTHER'],VT:['Vermont','OTHER'],VA:['Virginia','PJM'],WA:['Washington','OTHER'],WV:['West Virginia','PJM'],WI:['Wisconsin','MISO'],WY:['Wyoming','OTHER']};
+// Tile-grid positions [column, row] for the always-available map.
+const TILES = {AK:[0,0],ME:[11,0],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],WI:[7,2],MI:[8,2],NY:[9,2],RI:[10,2],MA:[11,2],OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],CA:[1,4],UT:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],VA:[8,4],MD:[9,4],DE:[10,4],AZ:[2,5],NM:[3,5],KS:[4,5],AR:[5,5],TN:[6,5],NC:[7,5],SC:[8,5],DC:[9,5],OK:[4,6],LA:[5,6],MS:[6,6],AL:[7,6],GA:[8,6],HI:[0,7],TX:[4,7],FL:[9,7]};
+// CBRE market snapshot. MW; null means not in this snapshot.
+const MARKETS = [
+  { id: 'nova', name: 'Northern Virginia', st: 'VA', region: 'PJM', lon: -77.49, lat: 39.04, inv: 4496.5, uc: 2420.2, vac: 0.24, asOf: 'CBRE H1 2026' },
+  { id: 'atl', name: 'Atlanta', st: 'GA', region: 'SOCO', lon: -84.39, lat: 33.75, inv: null, uc: 2882, vac: 1.0, asOf: 'CBRE H1 2026; vacancy Q1 2026', note: 'Largest construction pipeline in North America; inventory above 1 GW' },
+  { id: 'dfw', name: 'Dallas-Fort Worth', st: 'TX', region: 'ERCOT', lon: -97.04, lat: 32.90, inv: 1250, approx: true, uc: null, vac: null, asOf: 'CBRE Q1 2026', note: 'About 1,250 MW, derived from a 379.9 MW (43.7%) year-over-year gain' },
+  { id: 'chi', name: 'Chicago', st: 'IL', region: 'PJM', lon: -87.63, lat: 41.88, inv: null, uc: null, vac: 2.2, asOf: 'CBRE Q1 2026', note: 'Fourth-largest market; 19.8 MW available' },
+  { id: 'phx', name: 'Phoenix', st: 'AZ', region: 'OTHER', lon: -112.07, lat: 33.45, inv: null, uc: null, vac: null, asOf: 'CBRE primary market', note: 'Sizes not in this snapshot' },
+  { id: 'sv', name: 'Silicon Valley', st: 'CA', region: 'OTHER', lon: -121.95, lat: 37.37, inv: 489.2, uc: 144, vac: 4.7, asOf: 'CBRE H2 2025' },
+  { id: 'hil', name: 'Hillsboro', st: 'OR', region: 'OTHER', lon: -122.99, lat: 45.52, inv: null, uc: null, vac: null, asOf: 'CBRE primary market', note: 'Sizes not in this snapshot' },
+  { id: 'nyc', name: 'New York Tri-State', st: 'NJ', region: 'OTHER', lon: -74.17, lat: 40.74, inv: null, uc: null, vac: null, asOf: 'CBRE primary market', note: 'Sizes not in this snapshot' }
+];
+const PRIMARY_TOTALS = 'Across the eight primary markets in H1 2026: about 10.9 GW of capacity, 7,481 MW under construction, 1.4% vacancy (CBRE).';
+const SAMPLE_SITES = 'name,lat,lon,mw,state\nSample site: Abilene TX,32.45,-99.73,1200,TX\nSample site: Richland Parish LA,32.42,-91.76,2000,LA\nSample site: Memphis TN,35.15,-90.05,300,TN\nSample site: Mount Pleasant WI,42.72,-87.88,900,WI\nSample site: New Carlisle IN,41.70,-86.51,600,IN\nSample site: Athens NY,42.26,-73.81,150,NY';
+
+const TIERS = [
+  {
+    name: 'Open core',
+    price: 'Free',
+    who: 'Everyone: developers, journalists',
+    items: []
+  },
+  {
+    name: 'API license',
+    price: '$25,000 per year',
+    who: 'Developers, colocation',
+    buttonContainer: 'paypal-button-container-P-1R927669B7557892MNKZTRWI',
+    items: []
+  }
+];
+
+
+
+/* =====================================================================
+   3. SOURCE REGISTRY: one switch per source.
+   mode "snapshot": built into this file.
+   mode "browser":  fetched live here (needs normal hosting, not a sandbox).
+   mode "engine":   runs in the Python engine (universal_ingest.py).
+   To add a source: add an entry. For a browser source, add a loader in
+   LOADERS (section 5).
+   ===================================================================== */
+const HIFLD_LINES = 'https://services2.arcgis.com/LYMgRMwHfrWWEg3s/arcgis/rest/services/HIFLD_US_Electric_Power_Transmission_Lines/FeatureServer/0/query';
+const HIFLD_SUBS = 'https://services5.arcgis.com/HDRa0B57OVrv2E1q/arcgis/rest/services/Electric_Substations/FeatureServer/0/query';
+const SOURCES = [
+  { id: 'duke_headroom', org: 'Duke Nicholas Institute', dataset: 'Flexible headroom by grid region', layer: 'Supply', mode: 'snapshot', on: true, url: 'https://www.utilitydive.com/news/us-grid-headroom-flexible-load-data-center-ai-ev-duke-report/739767/' },
+  { id: 'cbre_markets', org: 'CBRE Research', dataset: 'Data center markets: inventory and construction', layer: 'Demand', mode: 'snapshot', on: true, url: 'https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026' },
+  { id: 'hifld_lines', org: 'HIFLD via ArcGIS', dataset: 'Transmission lines, 345 kV and up', layer: 'Supply', mode: 'browser', on: false, url: HIFLD_LINES },
+  { id: 'hifld_subs', org: 'HIFLD via ArcGIS', dataset: 'Electric substations', layer: 'Supply', mode: 'browser', on: false, url: HIFLD_SUBS },
+  { id: 'gridstatus', org: 'GridStatus.io', dataset: 'Real-time ISO load, frequency, nodal prices', layer: 'Supply', mode: 'engine', key: true, url: 'https://www.gridstatus.io' },
+  { id: 'lbnl_queued_up', org: 'Lawrence Berkeley National Laboratory', dataset: 'Queued Up: interconnection queues', layer: 'Supply', mode: 'engine', url: 'https://emp.lbl.gov/queues' },
+  { id: 'eia_open_data', org: 'U.S. Energy Information Administration', dataset: 'Open Data API', layer: 'Supply', mode: 'engine', key: true, url: 'https://api.eia.gov/v2/' },
+  { id: 'hifld', org: 'U.S. Government', dataset: 'Homeland Infrastructure Foundation-Level Data', layer: 'Supply', mode: 'engine', url: 'https://hifld-geoplatform.opendata.arcgis.com/' },
+  { id: 'aterio_cleanview', org: 'Aterio / Cleanview', dataset: 'Data center pipeline: operational, construction, announced', layer: 'Demand', mode: 'engine', key: true, note: 'Commercial license' },
+  { id: 'nrel_data_centers', org: 'NREL', dataset: 'U.S. data centers against high-voltage lines', layer: 'Demand', mode: 'engine' },
+  { id: 'baker_data_centers', org: 'Baker Institute', dataset: 'U.S. Data Centers and Infrastructure map', layer: 'Demand', mode: 'engine' },
+  { id: 'wri_aqueduct', org: 'World Resources Institute', dataset: 'Aqueduct water risk', layer: 'Risk', mode: 'engine', url: 'https://www.wri.org/aqueduct' },
+  { id: 'usgs_water', org: 'U.S. Geological Survey', dataset: 'Water Data', layer: 'Risk', mode: 'engine', url: 'https://api.waterdata.usgs.gov/' },
+  { id: 'noaa_ncei', org: 'NOAA', dataset: 'National Centers for Environmental Information', layer: 'Risk', mode: 'engine', url: 'https://www.ncei.noaa.gov/' },
+  { id: 'fema_nri', org: 'FEMA', dataset: 'National Risk Index', layer: 'Risk', mode: 'engine', url: 'https://hazards.fema.gov/nri/' },
+  { id: 'epa', org: 'EPA', dataset: 'Environmental data APIs', layer: 'Risk', mode: 'engine', url: 'https://www.epa.gov/data/application-programming-interface-api' },
+  { id: 'usfws_nwi', org: 'U.S. Fish and Wildlife Service', dataset: 'National Wetlands Inventory', layer: 'Risk', mode: 'engine', url: 'https://www.fws.gov/program/national-wetlands-inventory' },
+  { id: 'usda_ssurgo', org: 'USDA NRCS', dataset: 'SSURGO soils', layer: 'Risk', mode: 'engine', url: 'https://www.nrcs.usda.gov/resources/data-and-reports/soil-survey-geographic-database-ssurgo' },
+  { id: 'usgs_national_map', org: 'U.S. Geological Survey', dataset: 'National Map', layer: 'Context', mode: 'engine', url: 'https://www.usgs.gov/programs/national-geospatial-program/national-map' },
+  { id: 'usgs_3dep', org: 'U.S. Geological Survey', dataset: '3D Elevation Program', layer: 'Context', mode: 'engine', url: 'https://www.usgs.gov/3d-elevation-program' },
+  { id: 'census', org: 'U.S. Census Bureau', dataset: 'Census API', layer: 'Context', mode: 'engine', key: true, url: 'https://api.census.gov/' },
+  { id: 'bea', org: 'Bureau of Economic Analysis', dataset: 'BEA API', layer: 'Context', mode: 'engine', key: true, url: 'https://apps.bea.gov/API/' },
+  { id: 'bls', org: 'Bureau of Labor Statistics', dataset: 'BLS API', layer: 'Context', mode: 'engine', key: true, url: 'https://www.bls.gov/developers/' },
+  { id: 'fcc', org: 'Federal Communications Commission', dataset: 'Broadband Data Collection', layer: 'Context', mode: 'engine', url: 'https://www.fcc.gov/broadband-data-collection' },
+  { id: 'sec_edgar', org: 'Securities and Exchange Commission', dataset: 'EDGAR filings', layer: 'Context', mode: 'engine', url: 'https://www.sec.gov/edgar' }
+];
+
+/* =====================================================================
+   4. APP STATE: saved in this browser only.
+   ===================================================================== */
+const DEFAULTS = {
+  sim: { mw: 500, eff: 80, flex: 'p05', subPipe: true },
+  layers: { markets: true, sites: true, supply: true, lines: true, subs: true },
+  colorBy: 'supply', tab: 'simulate', theme: null,
+  src: {}, keys: {}, risk: {}, riskDemo: false, sites: [], extraMarkets: [], regionOverrides: {}
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+function loadState() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { saved = {}; }
+  const s = clone(DEFAULTS);
+  for (const k of Object.keys(saved)) {
+    if (s[k] && typeof s[k] === 'object' && !Array.isArray(s[k]) && saved[k] && typeof saved[k] === 'object') Object.assign(s[k], saved[k]);
+    else s[k] = saved[k];
+  }
+  return s;
+}
+let S = loadState();
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch (e) { /* storage can be unavailable */ } }
+const RT = { lines: null, subs: null, status: {}, geo: null, view: { k: 1, x: 0, y: 0 } };
+
+/* =====================================================================
+   5. ENGINE: the scenario math, and the loaders for live sources.
+   ===================================================================== */
+const srcOn = id => (id in S.src ? S.src[id] : (SOURCES.find(s => s.id === id) || {}).on === true);
+const regionById = id => REGIONS.find(r => r.id === id);
+const allMarkets = () => (srcOn('cbre_markets') ? MARKETS : []).concat(S.extraMarkets || []);
+const regionH05 = r => (S.regionOverrides[r.id] && S.regionOverrides[r.id].h05 != null) ? S.regionOverrides[r.id].h05 : r.h05;
+
+function pipelineMW(regionId) {
+  return allMarkets().filter(m => m.region === regionId).reduce((a, m) => a + (m.uc || 0), 0);
+}
+function scenario() {
+  const { mw, eff, flex, subPipe } = S.sim;
+  const need = mw * (1 - eff / 100);
+  const freed = mw - need;
+  const scale = FLEX[flex].scale;
+  const haveSupply = srcOn('duke_headroom');
+  const rows = REGIONS.map(r => {
+    const head = haveSupply && scale != null ? regionH05(r) * scale : null;
+    const pipe = pipelineMW(r.id) / 1000;
+    const rem = head == null ? null : Math.max(0, head - (subPipe ? pipe : 0));
+    return { r, head, pipe, rem,
+      std: rem == null ? null : Math.floor(rem * 1000 / mw),
+      yours: rem == null ? null : Math.floor(rem * 1000 / need) };
+  });
+  const sum = k => rows.reduce((a, x) => a + (x[k] || 0), 0);
+  return { mw, eff, need, freed, flex, scale, haveSupply, rows,
+    total: { head: scale == null || !haveSupply ? null : sum('head'), pipe: sum('pipe'), rem: scale == null || !haveSupply ? null : sum('rem'), std: sum('std'), yours: sum('yours') } };
+}
+function stateRegion(st) { return STATES[st] ? STATES[st][1] : null; }
+function riskScore(st) {
+  const r = S.risk[st];
+  if (!r) return null;
+  const vals = ['water', 'zoning', 'incentives'].map(k => r[k]).filter(v => typeof v === 'number' && !isNaN(v));
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+}
+function rankSites() {
+  const sc = scenario();
+  return (S.sites || []).map(s => {
+    const st = s.state || locateState(s.lon, s.lat);
+    const reg = stateRegion(st);
+    const row = sc.rows.find(x => x.r.id === reg);
+    const rem = row ? row.rem : null;
+    const need = s.mw * (1 - sc.eff / 100);
+    const risk = st ? riskScore(st) : null;
+    const fitStd = rem != null && s.mw <= rem * 1000;
+    const fitYours = rem != null && need <= rem * 1000;
+    const score = rem == null ? -1 : (rem * 1000 / need) * (risk == null ? 1 : (1 - risk / 10));
+    return Object.assign({}, s, { st, reg, rem, need, risk, fitStd, fitYours, score });
+  }).sort((a, b) => b.score - a.score);
+}
+// Browser loaders. Each returns GeoJSON or throws.
+async function arcgisQuery(url, where, extra) {
+  const params = new URLSearchParams(Object.assign({ where, outFields: '*', returnGeometry: 'true', outSR: '4326', f: 'geojson', resultRecordCount: '2000' }, extra || {}));
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 20000);
+  try {
+    const res = await fetch(url + '?' + params.toString(), { signal: ctl.signal });
+    if (!res.ok) throw new Error('The service answered ' + res.status);
+    const j = await res.json();
+    if (j.error) throw new Error(j.error.message || 'The service returned an error');
+    if (!Array.isArray(j.features)) throw new Error('The service returned no features');
+    return j;
+  } finally { clearTimeout(timer); }
+}
+const LOADERS = {
+  hifld_lines: async () => {
+    try { return await arcgisQuery(HIFLD_LINES, 'VOLTAGE>=345', { maxAllowableOffset: '0.02' }); }
+    catch (e) { if (e instanceof TypeError || e.name === 'AbortError') throw e; return arcgisQuery(HIFLD_LINES, '1=1', { maxAllowableOffset: '0.02' }); }
+  },
+  hifld_subs: async () => {
+    try { return await arcgisQuery(HIFLD_SUBS, 'MAX_VOLT>=345'); }
+    catch (e) { if (e instanceof TypeError || e.name === 'AbortError') throw e; return arcgisQuery(HIFLD_SUBS, '1=1'); }
+  }
+};
+async function runLoader(id) {
+  if (!LOADERS[id]) return;
+  RT.status[id] = { kind: 'loading', text: 'Loading' };
+  renderSources();
+  try {
+    const data = await LOADERS[id]();
+    if (id === 'hifld_lines') RT.lines = data; else RT.subs = data;
+    RT.status[id] = { kind: 'live', text: 'Live: ' + data.features.length.toLocaleString() + ' features' + (RT.geo ? '' : '. They draw on the geographic map, which did not load here') };
+  } catch (e) {
+    const blocked = e instanceof TypeError;
+    RT.status[id] = { kind: 'err', text: blocked ? 'Blocked here. Live sources load when you open index.html on your computer or your own website.' : (e.name === 'AbortError' ? 'Timed out after 20 seconds. Try again later.' : e.message) };
+  }
+  renderSources(); renderMap(); renderLegend();
+}
+
+/* =====================================================================
+   6. MAP: geographic when the optional libraries loaded, tile grid
+   otherwise. Both share the same marks and colors.
+   ===================================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('map');
+function el(tag, attrs, parent, style) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (style) Object.assign(n.style, style);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function initGeo() {
+  try {
+    if (!window.d3 || !window.topojson || !window.Datamap) return;
+    const topo = window.Datamap.prototype.usaTopo;
+    if (!topo || typeof topo !== 'object' || !topo.objects) return;
+    const obj = topo.objects.usa || topo.objects[Object.keys(topo.objects)[0]];
+    const fc = window.topojson.feature(topo, obj);
+    const feats = fc.features.filter(f => STATES[f.id]);
+    if (feats.length < 40) return;
+    const projection = window.d3.geoAlbersUsa().fitExtent([[12, 40], [963, 600]], { type: 'FeatureCollection', features: feats });
+    RT.geo = { feats, projection, path: window.d3.geoPath(projection) };
+  } catch (e) { RT.geo = null; }
+}
+const TILE = { size: 74, gap: 5, x0: 28, y0: 28 };
+const VIEWBOX = { geo: [975, 610], tiles: [1000, 690] };
+function tileXY(st) {
+  const t = TILES[st]; if (!t) return null;
+  return [TILE.x0 + t[0] * (TILE.size + TILE.gap), TILE.y0 + t[1] * (TILE.size + TILE.gap)];
+}
+function place(lon, lat, st, i) {
+  if (RT.geo) return RT.geo.projection([lon, lat]);
+  const xy = tileXY(st); if (!xy) return null;
+  const off = [[22, 50], [52, 50], [22, 24], [52, 24]][(i || 0) % 4];
+  return [xy[0] + off[0], xy[1] + off[1]];
+}
+function locateState(lon, lat) {
+  if (!RT.geo || lon == null || lat == null) return null;
+  const f = RT.geo.feats.find(f => window.d3.geoContains(f, [lon, lat]));
+  return f ? f.id : null;
+}
+function stateStyle(st) {
+  const mode = S.colorBy;
+  if (mode === 'risk') {
+    const r = riskScore(st);
+    return r == null ? { fill: 'var(--queue)', fillOpacity: 1 } : { fill: 'var(--red)', fillOpacity: 0.15 + 0.17 * r };
+  }
+  if (mode === 'supply' && S.layers.supply) {
+    const row = scenario().rows.find(x => x.r.id === stateRegion(st));
+    if (!row || row.rem == null) return { fill: 'var(--queue)', fillOpacity: 1 };
+    return { fill: 'var(--green)', fillOpacity: 0.18 + 0.62 * Math.min(1, row.rem / 18) };
+  }
+  return { fill: 'var(--land)', fillOpacity: 1 };
+}
+function renderMap() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  RT.vb = RT.geo ? VIEWBOX.geo : VIEWBOX.tiles;
+  svg.setAttribute('viewBox', '0 0 ' + RT.vb[0] + ' ' + RT.vb[1]);
+  const v = RT.view;
+  const g = el('g', { transform: `translate(${v.x},${v.y}) scale(${v.k})` }, svg);
+  RT.g = g;
+  document.getElementById('mapMode').textContent = RT.geo ? 'Geographic map' : 'Tile map (one square per state)';
+  if (RT.geo) {
+    RT.geo.feats.forEach(f => {
+      const p = el('path', { d: RT.geo.path(f), class: 'state', tabindex: 0, 'aria-label': STATES[f.id][0] }, g, stateStyle(f.id));
+      p.addEventListener('click', () => showState(f.id));
+      p.addEventListener('keydown', e => { if (e.key === 'Enter') showState(f.id); });
+    });
+    if (S.layers.lines && RT.lines && srcOn('hifld_lines')) el('path', { d: RT.geo.path(RT.lines), class: 'tline' }, g);
+    if (S.layers.subs && RT.subs && srcOn('hifld_subs')) RT.subs.features.forEach(f => {
+      if (!f.geometry || f.geometry.type !== 'Point') return;
+      const p = RT.geo.projection(f.geometry.coordinates); if (p) el('circle', { cx: p[0], cy: p[1], r: 1.6, class: 'sub' }, g);
+    });
+    if (S.layers.supply && S.colorBy === 'supply' && srcOn('duke_headroom')) REGIONS.filter(r => r.center).forEach(r => {
+      const p = RT.geo.projection(r.center); if (!p) return;
+      const t = el('text', { x: p[0], y: p[1], class: 'region-label' }, g); t.textContent = r.name;
+    });
+  } else {
+    for (const st in TILES) {
+      const [x, y] = tileXY(st);
+      const rect = el('rect', { x, y, width: TILE.size, height: TILE.size, rx: 6, class: 'state', tabindex: 0, 'aria-label': STATES[st][0] }, g, stateStyle(st));
+      rect.addEventListener('click', () => showState(st));
+      rect.addEventListener('keydown', e => { if (e.key === 'Enter') showState(st); });
+      const t = el('text', { x: x + TILE.size / 2, y: y + 22, class: 'tile-label' }, g); t.textContent = st;
+    }
+  }
+  if (S.layers.markets) {
+    const seen = {};
+    allMarkets().forEach(m => {
+      seen[m.st] = (seen[m.st] || 0) + 1;
+      const p = place(m.lon, m.lat, m.st, seen[m.st] - 1); if (!p) return;
+      const r = m.inv ? Math.max(5, Math.sqrt(m.inv) / 4) : 5;
+      if (m.uc) el('circle', { cx: p[0], cy: p[1], r: r + Math.max(3, Math.sqrt(m.uc) / 6), class: 'market-uc' }, g);
+      const c = el('circle', { cx: p[0], cy: p[1], r, class: 'market', tabindex: 0, 'aria-label': m.name }, g);
+      c.addEventListener('click', e => { e.stopPropagation(); showMarket(m); });
+    });
+  }
+  if (S.layers.sites) {
+    const seen = {};
+    rankSites().forEach(s => {
+      const key = s.st || '?'; seen[key] = (seen[key] || 0) + 1;
+      const p = place(s.lon, s.lat, s.st, seen[key] + 1); if (!p) return;
+      const d = 5.5;
+      const poly = el('polygon', { points: `${p[0]},${p[1] - d} ${p[0] + d},${p[1]} ${p[0]},${p[1] + d} ${p[0] - d},${p[1]}`, class: 'site', tabindex: 0, 'aria-label': s.name }, g);
+      poly.addEventListener('click', e => { e.stopPropagation(); showSite(s); });
+    });
+  }
+}
+function renderLegend() {
+  const L = [];
+  const sw = (c, o, t) => `<span><i class="sw" style="background:${c};opacity:${o}"></i>${t}</span>`;
+  if (S.colorBy === 'supply' && S.layers.supply) {
+    if (!srcOn('duke_headroom')) L.push('<span>Supply source is switched off</span>');
+    else if (FLEX[S.sim.flex].scale == null) L.push(sw('var(--queue)', 1, 'Firm service: waits in the interconnection queue'));
+    else L.push(sw('var(--green)', .3, 'Less headroom'), sw('var(--green)', .8, 'More headroom (per region)'));
+  } else if (S.colorBy === 'risk') {
+    L.push(sw('var(--red)', .2, 'Low risk'), sw('var(--red)', .95, 'High risk'), sw('var(--queue)', 1, 'No score'));
+    if (S.riskDemo) L.push('<span><b>Demo values, not real data</b></span>');
+  }
+  if (S.layers.markets && allMarkets().length) L.push(sw('var(--red)', .8, 'Data center market (dashed ring: under construction)'));
+  if (S.layers.sites && (S.sites || []).length) L.push(sw('var(--ink)', 1, 'Your site'));
+  if (RT.geo && S.layers.lines && RT.lines && srcOn('hifld_lines')) L.push(sw('var(--cyan)', 1, 'Transmission, 345 kV+'));
+  if (RT.geo && S.layers.subs && RT.subs && srcOn('hifld_subs')) L.push(sw('var(--amber)', 1, 'Substation'));
+  document.getElementById('legend').innerHTML = L.join('');
+}
+// Zoom and pan (mouse and pen; touch uses the buttons so the page still scrolls).
+function setView(k, x, y) {
+  RT.view = { k: Math.max(1, Math.min(8, k)), x, y };
+  if (RT.view.k === 1) RT.view.x = RT.view.y = 0;
+  if (RT.g) RT.g.setAttribute('transform', `translate(${RT.view.x},${RT.view.y}) scale(${RT.view.k})`);
+}
+function zoomAt(f, cx, cy) {
+  const v = RT.view, k = Math.max(1, Math.min(8, v.k * f));
+  setView(k, cx - (cx - v.x) * (k / v.k), cy - (cy - v.y) * (k / v.k));
+}
+function svgPoint(e) { const b = svg.getBoundingClientRect(), vb = RT.vb || VIEWBOX.geo; return [(e.clientX - b.left) * vb[0] / b.width, (e.clientY - b.top) * vb[1] / b.height]; }
+svg.addEventListener('wheel', e => { e.preventDefault(); const [x, y] = svgPoint(e); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, x, y); }, { passive: false });
+let drag = null;
+svg.addEventListener('pointerdown', e => { if (e.pointerType === 'touch' || RT.view.k === 1) return; drag = { p: svgPoint(e), v: Object.assign({}, RT.view) }; });
+window.addEventListener('pointermove', e => { if (!drag) return; const p = svgPoint(e); setView(drag.v.k, drag.v.x + p[0] - drag.p[0], drag.v.y + p[1] - drag.p[1]); });
+window.addEventListener('pointerup', () => { drag = null; });
+
+/* =====================================================================
+   7. DETAIL CARDS
+   ===================================================================== */
+const fmtMW = v => v == null ? 'n/a' : (Math.abs(v) >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + ' GW' : Math.round(v).toLocaleString() + ' MW');
+const fmtGW = v => v == null ? 'n/a' : v.toFixed(1) + ' GW';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function showInfo(html) { document.getElementById('infoBody').innerHTML = html; document.getElementById('info').classList.add('show'); }
+document.getElementById('infoClose').addEventListener('click', () => document.getElementById('info').classList.remove('show'));
+function showState(st) {
+  const reg = regionById(stateRegion(st)); const row = scenario().rows.find(x => x.r.id === (reg && reg.id));
+  const risk = S.risk[st];
+  showInfo(`<h3>${esc(STATES[st][0])}</h3>Main grid region: <b>${esc(reg ? reg.name : 'n/a')}</b> (approximate)<br>` +
+    `Headroom left in region: <b>${row && row.rem != null ? fmtGW(row.rem) : 'firm service or source off'}</b><br>` +
+    `Campuses that fit there: ${row && row.std != null ? `<b>${row.std}</b> standard, <b>${row.yours}</b> your way` : 'n/a'}<br>` +
+    `Risk: ${risk ? `water ${risk.water ?? 'n/a'}, zoning ${risk.zoning ?? 'n/a'}, incentives ${risk.incentives ?? 'n/a'}${S.riskDemo ? ' (demo)' : ''}` : 'no score loaded'}`);
+}
+function showMarket(m) {
+  showInfo(`<h3>${esc(m.name)}</h3>Region: <b>${esc((regionById(m.region) || {}).name || m.region)}</b><br>` +
+    `Inventory: <b>${m.inv ? (m.approx ? 'about ' : '') + fmtMW(m.inv) : 'n/a'}</b><br>Under construction: <b>${fmtMW(m.uc)}</b><br>` +
+    `Vacancy: <b>${m.vac != null ? m.vac + '%' : 'n/a'}</b><br><span class="note">${esc(m.asOf)}${m.note ? '. ' + esc(m.note) : ''}</span>`);
+}
+function showSite(s) {
+  showInfo(`<h3>${esc(s.name)}</h3>${fmtMW(s.mw)} planned. State: <b>${esc(s.st || 'unknown')}</b>, region <b>${esc(s.reg || 'unknown')}</b><br>` +
+    `Grid power needed your way: <b>${fmtMW(s.need)}</b><br>Headroom left in region: <b>${s.rem != null ? fmtGW(s.rem) : 'n/a'}</b><br>` +
+    `Fits standard: <b class="${s.fitStd ? 'fit' : 'nofit'}">${s.fitStd ? 'yes' : 'no'}</b>, fits your way: <b class="${s.fitYours ? 'fit' : 'nofit'}">${s.fitYours ? 'yes' : 'no'}</b>`);
+}
+
+/* =====================================================================
+   8. PANELS
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+function renderHeadline() {
+  const sc = scenario(); const f = FLEX[sc.flex];
+  if (!sc.haveSupply) { $('headline').textContent = 'Switch on a supply source to see where campuses fit.'; $('subline').textContent = ''; return; }
+  if (f.scale == null) {
+    $('headline').innerHTML = 'On firm service, new campuses wait in line.';
+    $('subline').textContent = 'The headroom study does not estimate firm capacity. Some utilities report interconnection waits of 7 to 10 years. Pick a flexible option to see what opens up.';
+    return;
+  }
+  $('headline').innerHTML = `With ${esc(f.long)}, the grid can take <b>${sc.total.std.toLocaleString()}</b> standard ${fmtMW(sc.mw)} campuses, or <b>${sc.total.yours.toLocaleString()}</b> built your way.`;
+  $('subline').textContent = `Your way means ${sc.eff}% less grid power per campus. Each one frees ${fmtMW(sc.freed)} of capacity, about ${sc.total.head.toFixed(0)} GW of headroom nationwide${S.sim.subPipe ? ', minus tracked construction' : ''}.`;
+}
+function renderSim() {
+  const sc = scenario();
+  $('mw').value = S.sim.mw; $('mwOut').textContent = fmtMW(S.sim.mw);
+  $('eff').value = S.sim.eff; $('effOut').textContent = S.sim.eff + '%';
+  $('subPipe').checked = !!S.sim.subPipe;
+  $('needOut').textContent = fmtMW(sc.need); $('freedOut').textContent = fmtMW(sc.freed);
+  $('flexSeg').innerHTML = Object.keys(FLEX).map(k => `<button type="button" data-flex="${k}" aria-pressed="${S.sim.flex === k}">${esc(FLEX[k].label)}</button>`).join('');
+}
+function renderRegions() {
+  const sc = scenario();
+  const cell = (v, fmt) => v == null ? '<td>n/a</td>' : `<td>${fmt(v)}</td>`;
+  const n = v => v.toLocaleString();
+  let h = '<thead><tr><th>Region</th><th>Headroom</th><th>Tracked construction</th><th>Left</th><th>Standard campuses</th><th>Your campuses</th></tr></thead><tbody>';
+  sc.rows.forEach(x => { h += `<tr><td>${esc(x.r.name)}</td>${cell(x.head, fmtGW)}<td>${x.pipe ? fmtGW(x.pipe) : '&ndash;'}</td>${cell(x.rem, fmtGW)}${cell(x.std, n)}${cell(x.yours, n)}</tr>`; });
+  h += `<tr class="total"><td>United States</td>${cell(sc.total.head, fmtGW)}<td>${fmtGW(sc.total.pipe)}</td>${cell(sc.total.rem, fmtGW)}${sc.total.head == null ? '<td>n/a</td><td>n/a</td>' : `<td>${n(sc.total.std)}</td><td>${n(sc.total.yours)}</td>`}</tr></tbody>`;
+  $('regionTable').innerHTML = h;
+  $('regionNote').textContent = PRIMARY_TOTALS + ' Tracked construction only covers markets with published figures, so real queues are longer.';
+}
+function renderLayers() {
+  document.querySelectorAll('[data-layer]').forEach(i => { i.checked = !!S.layers[i.dataset.layer]; });
+  const n = Object.keys(S.risk).length;
+  $('riskStatus').textContent = n ? `${n} states scored${S.riskDemo ? ' with demo values' : ''}.` : 'No risk scores loaded.';
+}
+function modeLabel(s) { return s.mode === 'snapshot' ? '<span class="badge snap">built in</span>' : s.mode === 'browser' ? '<span class="badge">live</span>' : '<span class="badge">engine</span>'; }
+function renderSources() {
+  const groups = ['Demand', 'Supply', 'Risk', 'Context'];
+  let h = '';
+  groups.forEach(g => {
+    h += `<h2>${g}</h2>`;
+    SOURCES.filter(s => s.layer === g).forEach(s => {
+      const on = srcOn(s.id); const st = RT.status[s.id];
+      let status = !on ? 'Off' : s.mode === 'snapshot' ? 'On: using the built-in snapshot' : s.mode === 'engine' ? (RT.status[s.id] ? RT.status[s.id].text : 'On: included in sources.yaml for the engine') : (st ? st.text : 'On');
+      const cls = st && st.kind === 'live' ? 'live' : st && st.kind === 'err' ? 'err' : '';
+      h += `<div class="row"><div class="t"><b>${esc(s.dataset)} ${modeLabel(s)}</b><small>${esc(s.org)}${s.note ? '. ' + esc(s.note) : ''}${s.url ? ` <a href="${esc(s.url)}" target="_blank" rel="noopener">source</a>` : ''}</small>` +
+        `<small class="${cls ? 'badge ' + cls : ''}" style="${cls ? 'display:inline-block;margin:4px 0 0' : ''}">${esc(status)}</small>` +
+        (s.key && on ? `<input class="keyin" type="password" autocomplete="off" data-key="${s.id}" placeholder="API key (kept in this browser only)" value="${esc(S.keys[s.id] || '')}">` : '') +
+        `</div><label class="switch"><input type="checkbox" data-src="${s.id}" ${on ? 'checked' : ''} aria-label="${esc(s.dataset)}"><span></span></label></div>`;
+    });
+  });
+  $('sourceList').innerHTML = h;
+}
+function renderSites() {
+  const ranked = rankSites();
+  if (!ranked.length) { $('siteTable').innerHTML = '<p class="hint">No sites yet. Load the samples or import a CSV.</p>'; return; }
+  let h = '<table><thead><tr><th>#</th><th>Site</th><th>MW</th><th>Region</th><th>Left</th><th>Standard</th><th>Your way</th><th>Risk</th><th></th></tr></thead><tbody>';
+  ranked.forEach((s, i) => {
+    h += `<tr><td>${i + 1}</td><td style="text-align:left">${esc(s.name)}</td><td>${Math.round(s.mw).toLocaleString()}</td><td>${esc(s.reg || '?')}</td><td>${s.rem != null ? fmtGW(s.rem) : 'n/a'}</td>` +
+      `<td class="${s.fitStd ? 'fit' : 'nofit'}">${s.fitStd ? 'fits' : 'no'}</td><td class="${s.fitYours ? 'fit' : 'nofit'}">${s.fitYours ? 'fits' : 'no'}</td><td>${s.risk != null ? s.risk.toFixed(1) : 'n/a'}</td>` +
+      `<td><button class="btn" type="button" data-del="${esc(s.id)}" aria-label="Remove ${esc(s.name)}">Remove</button></td></tr>`;
+  });
+  $('siteTable').innerHTML = h + '</tbody></table>' + (RT.geo ? '' : '<p class="note">Sites without a state column need the geographic map to find their state.</p>');
+}
+function renderTiers() {
+  $('tiers').innerHTML = TIERS.map(t => `<div class="tier"><h3>${esc(t.name)}</h3><div class="price">${esc(t.price)}</div><div class="note">${esc(t.who)}</div><ul>${t.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('');
+}
+function selectTab(name) {
+  S.tab = name; save();
+  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + name));
+}
+function renderAll() { renderSim(); renderHeadline(); renderRegions(); renderLayers(); renderSources(); renderSites(); renderMap(); renderLegend(); $('colorBy').value = S.colorBy; }
+const refresh = () => { save(); renderSim(); renderHeadline(); renderRegions(); renderSites(); renderMap(); renderLegend(); };
+
+/* =====================================================================
+   9. IMPORT AND EXPORT
+   ===================================================================== */
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
+function copyText(text) {
+  let ok = false;
+  try { navigator.clipboard.writeText(text).then(() => toast('Copied'), () => {}); ok = true; } catch (e) { ok = false; }
+  $('copyText').value = text;
+  try { $('copyDialog').showModal(); } catch (e) { $('copyDialog').setAttribute('open', ''); }
+  if (!ok) $('copyText').select();
+}
+$('copyClose').addEventListener('click', () => { try { $('copyDialog').close(); } catch (e) { $('copyDialog').removeAttribute('open'); } });
+function parseCSV(text) {
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  const clean = rows.filter(r => r.some(x => x.trim() !== ''));
+  if (!clean.length) return [];
+  const head = clean[0].map(h => h.trim().toLowerCase());
+  return clean.slice(1).map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));
+}
+let pendingImport = null;
+function pickFile(kind) { pendingImport = kind; $('fileIn').value = ''; $('fileIn').click(); }
+$('fileIn').addEventListener('change', () => {
+  const f = $('fileIn').files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => { try { importText(pendingImport, String(reader.result)); } catch (e) { toast('Could not read that file: ' + e.message); } };
+  reader.readAsText(f);
+});
+function importSites(text) {
+  const rows = parseCSV(text); let added = 0;
+  rows.forEach((r, i) => {
+    const lat = parseFloat(r.lat ?? r.latitude), lon = parseFloat(r.lon ?? r.lng ?? r.longitude), mw = parseFloat(r.mw ?? r.megawatts);
+    if (isNaN(lat) || isNaN(lon) || isNaN(mw) || mw <= 0) return;
+    const st = (r.state || '').toUpperCase();
+    S.sites.push({ id: 's' + Date.now().toString(36) + i, name: r.name || ('Site ' + (S.sites.length + 1)), lat, lon, mw, state: STATES[st] ? st : null });
+    added++;
+  });
+  return added;
+}
+function importText(kind, text) {
+  if (kind === 'sites') { const n = importSites(text); toast(n ? `Added ${n} sites` : 'No rows had name, lat, lon and mw'); }
+  else if (kind === 'risk') {
+    const rows = parseCSV(text); let n = 0;
+    rows.forEach(r => { const st = (r.state || '').toUpperCase(); if (!STATES[st]) return; const num = v => v === '' || v == null ? null : parseFloat(v);
+      S.risk[st] = { water: num(r.water), zoning: num(r.zoning), incentives: num(r.incentives) }; n++; });
+    if (n) S.riskDemo = false;
+    toast(n ? `Scored ${n} states` : 'No rows had a valid state column');
+    if (n) { S.colorBy = 'risk'; $('colorBy').value = 'risk'; }
+  } else if (kind === 'engine') {
+    const j = JSON.parse(text); const got = [];
+    if (Array.isArray(j.markets)) { S.extraMarkets = j.markets.filter(m => m && m.name && m.lat != null && m.lon != null && m.region); got.push(S.extraMarkets.length + ' markets'); }
+    if (j.regions && typeof j.regions === 'object') { S.regionOverrides = j.regions; got.push('region headroom'); }
+    if (j.risk && typeof j.risk === 'object') { Object.assign(S.risk, j.risk); S.riskDemo = false; got.push(Object.keys(j.risk).length + ' risk scores'); }
+    if (j.lines && Array.isArray(j.lines.features)) { RT.lines = j.lines; S.src.hifld_lines = true; RT.status.hifld_lines = { kind: 'live', text: 'Imported from the engine: ' + j.lines.features.length + ' features' }; got.push('transmission lines'); }
+    (j.sources || []).forEach(id => { RT.status[id] = { kind: 'live', text: 'Imported from the engine' }; });
+    toast(got.length ? 'Imported ' + got.join(', ') : 'Nothing recognized in that file');
+  }
+  save(); renderAll();
+}
+function reportText() {
+  const sc = scenario(); const f = FLEX[sc.flex];
+  const L = ['GRIDZILLA SCENARIO REPORT', new Date().toISOString().slice(0, 10), '',
+    `Campus size: ${fmtMW(sc.mw)}`, `Architecture efficiency: ${sc.eff}% (what-if, not measured)`, `Grid service: ${f.long}`,
+    `Grid power needed per campus: ${fmtMW(sc.need)}`, `Negatokens (power freed per campus): ${fmtMW(sc.freed)}`, ''];
+  if (sc.total.head == null) L.push('Firm service: headroom not estimated; new firm loads wait in interconnection queues.');
+  else {
+    L.push(`National headroom: ${fmtGW(sc.total.head)}; left after tracked construction: ${fmtGW(sc.total.rem)}`);
+    L.push(`Campuses that fit: ${sc.total.std} standard vs ${sc.total.yours} your way`, '', 'Region, headroom GW, left GW, standard, your way');
+    sc.rows.forEach(x => L.push(`${x.r.name}, ${x.head.toFixed(1)}, ${x.rem.toFixed(1)}, ${x.std}, ${x.yours}`));
+  }
+  const sites = rankSites();
+  if (sites.length) { L.push('', 'Site ranking: name, MW, region, fits standard, fits your way, risk');
+    sites.forEach((s, i) => L.push(`${i + 1}. ${s.name}, ${Math.round(s.mw)}, ${s.reg || '?'}, ${s.fitStd ? 'yes' : 'no'}, ${s.fitYours ? 'yes' : 'no'}, ${s.risk != null ? s.risk.toFixed(1) : 'n/a'}`)); }
+  L.push('', 'Sources: Duke Nicholas Institute, Rethinking Load Growth (2025); CBRE North America Data Center Trends (2025-2026).',
+    'Headroom is system-level and first-order; it is not an interconnection study for any single site.');
+  return L.join('\n');
+}
+function sourcesYaml() {
+  const L = ['# GridZilla source switches, exported ' + new Date().toISOString().slice(0, 10), '# Read by the Python engine (universal_ingest.py). API keys are never exported.', 'sources:'];
+  SOURCES.forEach(s => { L.push(`  - id: ${s.id}`, `    organization: ${JSON.stringify(s.org)}`, `    dataset: ${JSON.stringify(s.dataset)}`, `    layer: ${s.layer.toLowerCase()}`, `    mode: ${s.mode}`, `    enabled: ${srcOn(s.id)}`); if (s.url) L.push(`    url: ${s.url}`); if (s.key) L.push('    needs_key: true'); });
+  return L.join('\n');
+}
+
+/* =====================================================================
+   10. WIRING
+   ===================================================================== */
+$('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if (b) selectTab(b.dataset.tab); });
+$('mw').addEventListener('input', e => { S.sim.mw = +e.target.value; refresh(); });
+$('eff').addEventListener('input', e => { S.sim.eff = +e.target.value; refresh(); });
+document.querySelectorAll('[data-eff]').forEach(b => b.addEventListener('click', () => { S.sim.eff = +b.dataset.eff; refresh(); }));
+$('flexSeg').addEventListener('click', e => { const b = e.target.closest('[data-flex]'); if (b) { S.sim.flex = b.dataset.flex; refresh(); } });
+$('subPipe').addEventListener('change', e => { S.sim.subPipe = e.target.checked; refresh(); });
+$('colorBy').addEventListener('change', e => { S.colorBy = e.target.value; save(); renderMap(); renderLegend(); });
+document.querySelectorAll('[data-layer]').forEach(i => i.addEventListener('change', () => {
+  S.layers[i.dataset.layer] = i.checked; save(); renderMap(); renderLegend();
+  if (i.checked && (i.dataset.layer === 'lines' || i.dataset.layer === 'subs')) {
+    const id = i.dataset.layer === 'lines' ? 'hifld_lines' : 'hifld_subs';
+    if (!srcOn(id)) toast('Switch on this source in the Sources tab to load it');
+  }
+}));
+$('sourceList').addEventListener('change', e => {
+  const i = e.target.closest('[data-src]'); if (!i) return;
+  const s = SOURCES.find(x => x.id === i.dataset.src);
+  S.src[s.id] = i.checked; save();
+  if (s.mode === 'browser' && i.checked) runLoader(s.id);
+  else { if (!i.checked) delete RT.status[s.id]; renderAll(); }
+});
+$('sourceList').addEventListener('input', e => { const k = e.target.closest('[data-key]'); if (k) { S.keys[k.dataset.key] = k.value; save(); } });
+$('yamlBtn').addEventListener('click', () => copyText(sourcesYaml()));
+$('engineImportBtn').addEventListener('click', () => pickFile('engine'));
+$('riskImportBtn').addEventListener('click', () => pickFile('risk'));
+$('riskDemoBtn').addEventListener('click', () => {
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  Object.keys(STATES).forEach(st => { S.risk[st] = { water: Math.round(rnd() * 50) / 10, zoning: Math.round(rnd() * 50) / 10, incentives: Math.round(rnd() * 50) / 10 }; });
+  S.riskDemo = true; S.colorBy = 'risk'; save(); renderAll(); toast('Demo risk values loaded');
+});
+$('riskClearBtn').addEventListener('click', () => { S.risk = {}; S.riskDemo = false; save(); renderAll(); });
+$('siteImportBtn').addEventListener('click', () => pickFile('sites'));
+$('siteSampleBtn').addEventListener('click', () => { const n = importSites(SAMPLE_SITES); save(); renderAll(); toast(`Added ${n} sample sites`); });
+$('siteClearBtn').addEventListener('click', () => { S.sites = []; save(); renderAll(); });
+$('siteCopyBtn').addEventListener('click', () => {
+  const rows = rankSites(); if (!rows.length) return toast('No sites to copy');
+  copyText(['rank,name,mw,state,region,headroom_left_gw,fits_standard,fits_your_way,risk'].concat(rows.map((s, i) => [i + 1, JSON.stringify(s.name), s.mw, s.st || '', s.reg || '', s.rem != null ? s.rem.toFixed(2) : '', s.fitStd, s.fitYours, s.risk != null ? s.risk.toFixed(1) : ''].join(','))).join('\n'));
+});
+$('siteTable').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (!b) return; S.sites = S.sites.filter(s => s.id !== b.dataset.del); save(); renderAll(); });
+$('siteForm').addEventListener('submit', e => {
+  e.preventDefault(); const fd = new FormData(e.target); const st = String(fd.get('state') || '').toUpperCase();
+  S.sites.push({ id: 's' + Date.now().toString(36), name: String(fd.get('name')), lat: +fd.get('lat'), lon: +fd.get('lon'), mw: +fd.get('mw'), state: STATES[st] ? st : null });
+  e.target.reset(); save(); renderAll(); toast('Site added');
+});
+$('reportBtn').addEventListener('click', () => copyText(reportText()));
+$('printBtn').addEventListener('click', () => { try { window.print(); } catch (e) { toast('Printing is blocked here. Use Copy report instead.'); } });
+const centre = () => (RT.vb || VIEWBOX.geo).map(v => v / 2);
+$('zoomIn').addEventListener('click', () => zoomAt(1.4, centre()[0], centre()[1]));
+$('zoomOut').addEventListener('click', () => zoomAt(1 / 1.4, centre()[0], centre()[1]));
+$('zoomReset').addEventListener('click', () => setView(1, 0, 0));
+$('themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  S.theme = cur === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', S.theme); save();
+});
+
+/* =====================================================================
+   11. START
+   ===================================================================== */
+if (S.theme) document.documentElement.setAttribute('data-theme', S.theme);
+initGeo();
+renderTiers();
+selectTab(S.tab || 'simulate');
+renderAll();
+SOURCES.filter(s => s.mode === 'browser' && srcOn(s.id)).forEach(s => runLoader(s.id));
+window.GridZilla = { state: () => S, scenario, rankSites, sourcesYaml, reportText, SOURCES, REGIONS, MARKETS };
+})();
+</script>
+</body>
+</html>

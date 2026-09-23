@@ -1,0 +1,4 @@
+# The engine uses the Python standard library only.
+# Optional, once you add heavier connectors:
+# requests
+# pandas
