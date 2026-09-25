@@ -116,8 +116,15 @@ footer ul{padding-left:18px}
     by("Ballot measure").forEach(function (c) { g1.appendChild(claimCard(c, true)); });
 
     var g2 = section("Government actions",
-      "State orders and rules, as reported. Original orders are being added as we pull them.");
+      "State orders, utility rules and federal guidance, as reported. Originals are being added as we pull them.");
     by("State policy").forEach(function (c) { g2.appendChild(claimCard(c, false)); });
+    by("Regulatory action").forEach(function (c) { g2.appendChild(claimCard(c, false)); });
+
+    var off = by("Official statement");
+    if (off.length) {
+      var go = section("What officials say", "Statements from agencies and officials, as reported.");
+      off.forEach(function (c) { go.appendChild(claimCard(c, false)); });
+    }
 
     var g3 = section("Industry counts", "Counts from trackers and analysts. Definitions differ, see below.");
     g3.className = "grid two";

@@ -221,6 +221,91 @@
       "confidence": "Reported",
       "link": "https://news.ballotpedia.org/2026/09/21/ohio-leads-states-in-number-of-local-ballot-measures-on-data-centers-for-2026/",
       "stale": false
+    },
+    {
+      "id": "C036",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Regulatory action",
+      "statement": "Seward & Kissel reports that on 2026-07-29 the SEC's Office of Structured Finance issued guidance that certain data center securitizations, where a bankruptcy-remote issuer owns or controls the facilities, are not 'asset-backed securities' under Exchange Act Section 3(a)(79), because the collateral is non-self-liquidating. Securities Act and other requirements still apply.",
+      "value": null,
+      "unit": null,
+      "original_reporter": "SEC Office of Structured Finance (per Seward & Kissel)",
+      "source_id": "S40",
+      "source_name": "Seward & Kissel: SEC data center securitization guidance",
+      "attribution": "Press report",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.sewkis.com/insights/sec-clears-path-for-data-center-securitizations-outside-exchange-act-abs-treatment/",
+      "stale": null
+    },
+    {
+      "id": "C037",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "EEI's list, dated 2026-09-11, catalogs publicly announced large-load projects of about 20 MW or more, totaling more than $1.13 trillion of investment and more than 71 GW of connected load. It says 32 states have approved large-load tariffs and 7 more are pending.",
+      "value": 1.13,
+      "unit": "USD trillion",
+      "original_reporter": "Edison Electric Institute",
+      "source_id": "S41",
+      "source_name": "EEI: Large Load Projects and Tariffs (Sept 2026)",
+      "attribution": "Dataset estimate",
+      "reported_on": "2026-09-11",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Primary document",
+      "link": "https://www.eei.org/-/media/Project/EEI/Documents/Issues%20and%20Policy/List%20of%20Large%20Customer%20Projects%20and%20Tariffs",
+      "stale": false
+    },
+    {
+      "id": "C038",
+      "project_id": "NATIONAL-US",
+      "fact_type": "State policy",
+      "statement": "CoBank, describing the SEPA and NCCETC DELTa database, says a common large-load rate design has emerged: contracts of 10 to 20 years, minimum bills of about 70 to 100% of contracted capacity, and collateral and exit rules.",
+      "value": "70 to 100",
+      "unit": "% minimum bill",
+      "original_reporter": "CoBank (describing DELTa)",
+      "source_id": "S42",
+      "source_name": "SEPA and NCCETC: DELTa large-load tariff database",
+      "attribution": "Press report",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.cobank.com/knowledge-exchange/the-state-of-large-load-rate-design-insights-from-the-delta-database",
+      "stale": null
+    },
+    {
+      "id": "C039",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "A JPMorgan analysis from May 2026, relayed by Moneywise, says 60% of data center capacity meant to be completed by 2027 has not reached the construction stage, and another 7% is delayed.",
+      "value": 60,
+      "unit": "% not yet in construction",
+      "original_reporter": "JPMorgan (per Moneywise)",
+      "source_id": "S44",
+      "source_name": "Moneywise: IMF and JPMorgan on AI data center debt",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://moneywise.com/news/economy/imf-ai-debt-leverage-data-centers-2026",
+      "stale": null
+    },
+    {
+      "id": "C041",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Official statement",
+      "statement": "Per Moneywise, the IMF's Tobias Adrian warned of \"a potential maturity mismatch in between the duration of the physical assets and the duration of the debt.\"",
+      "value": null,
+      "unit": null,
+      "original_reporter": "IMF (Tobias Adrian, per Moneywise)",
+      "source_id": "S44",
+      "source_name": "Moneywise: IMF and JPMorgan on AI data center debt",
+      "attribution": "Company statement",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://moneywise.com/news/economy/imf-ai-debt-leverage-data-centers-2026",
+      "stale": null
     }
   ],
   "discrepancies": [
@@ -256,6 +341,17 @@
       "status": "Open",
       "noted_on": "2026-09-24",
       "what_would_settle_it": "Compare exact questions and response options across the polls."
+    },
+    {
+      "id": "D011",
+      "project_id": "NATIONAL-US",
+      "type": "No primary document",
+      "claim_a": "C036",
+      "claim_b": null,
+      "description": "The SEC guidance on data center securitizations is known only through a law firm's summary. The staff guidance itself has not yet been pulled.",
+      "status": "Open",
+      "noted_on": "2026-09-24",
+      "what_would_settle_it": "The SEC staff guidance letter."
     }
   ],
   "sources": [
@@ -306,12 +402,36 @@
       "name": "Ballotpedia News: data center ballot measures",
       "kind": "Reference / press",
       "link": "https://news.ballotpedia.org/2026/09/21/ohio-leads-states-in-number-of-local-ballot-measures-on-data-centers-for-2026/"
+    },
+    {
+      "id": "S40",
+      "name": "Seward & Kissel: SEC data center securitization guidance",
+      "kind": "Law firm summary",
+      "link": "https://www.sewkis.com/insights/sec-clears-path-for-data-center-securitizations-outside-exchange-act-abs-treatment/"
+    },
+    {
+      "id": "S41",
+      "name": "EEI: Large Load Projects and Tariffs (Sept 2026)",
+      "kind": "Industry association list",
+      "link": "https://www.eei.org/-/media/Project/EEI/Documents/Issues%20and%20Policy/List%20of%20Large%20Customer%20Projects%20and%20Tariffs"
+    },
+    {
+      "id": "S42",
+      "name": "SEPA and NCCETC: DELTa large-load tariff database",
+      "kind": "Public database",
+      "link": "https://sepapower.org/large-load-tariffs-database/"
+    },
+    {
+      "id": "S44",
+      "name": "Moneywise: IMF and JPMorgan on AI data center debt",
+      "kind": "Press",
+      "link": "https://moneywise.com/news/economy/imf-ai-debt-leverage-data-centers-2026"
     }
   ],
   "locked": {
-    "projects_profiled": 1,
-    "claims": 23,
-    "discrepancies": 6,
-    "situations": 18
+    "projects_profiled": 2,
+    "claims": 27,
+    "discrepancies": 7,
+    "situations": 28
   }
 }
