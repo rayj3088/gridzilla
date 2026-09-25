@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-24",
+  "stale_after_days": 90,
+  "disclaimer": "Facts are reported as stated by named sources, with links. This is information, not investment, legal or credit advice, and not a rating of any company. Confidence labels describe how well we have documented a fact, not anyone's finances.",
+  "projects": [
+    {
+      "id": "TX-STATE",
+      "name": "Texas: statewide policy",
+      "level": "State",
+      "state": "TX"
+    },
+    {
+      "id": "NATIONAL-US",
+      "name": "National picture",
+      "level": "National",
+      "state": "US"
+    }
+  ],
+  "claims": [
+    {
+      "id": "C022",
+      "project_id": "TX-STATE",
+      "fact_type": "State policy",
+      "statement": "The Texas Tribune reports Gov. Abbott announced on 2026-08-03 a moratorium on new data centers connecting to the state grid, and ordered ERCOT to require developers to provide information on tax breaks, power use, water, community impact and ownership.",
+      "value": null,
+      "unit": null,
+      "original_reporter": "Texas Tribune",
+      "source_id": "S30",
+      "source_name": "Texas Tribune",
+      "attribution": "Press report",
+      "reported_on": "2026-09-21",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.texastribune.org/2026/09/21/texas-data-center-moratorium-water-energy/",
+      "stale": false
+    },
+    {
+      "id": "C023",
+      "project_id": "TX-STATE",
+      "fact_type": "State policy",
+      "statement": "The Texas Tribune reports Gov. Abbott directed the Texas Water Development Board on 2026-09-15 to penalize data centers that fail to report water use; only 28% had answered a mandatory survey.",
+      "value": 28,
+      "unit": "% responded",
+      "original_reporter": "Texas Tribune",
+      "source_id": "S30",
+      "source_name": "Texas Tribune",
+      "attribution": "Press report",
+      "reported_on": "2026-09-21",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.texastribune.org/2026/09/21/texas-data-center-moratorium-water-energy/",
+      "stale": false
+    },
+    {
+      "id": "C024",
+      "project_id": "TX-STATE",
+      "fact_type": "State policy",
+      "statement": "The Texas Tribune reports Gov. Abbott ordered the Texas Commission on Environmental Quality on 2026-09-21 to stop issuing environmental permits for data centers until audits are complete. No end date was given.",
+      "value": null,
+      "unit": null,
+      "original_reporter": "Texas Tribune",
+      "source_id": "S30",
+      "source_name": "Texas Tribune",
+      "attribution": "Press report",
+      "reported_on": "2026-09-21",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.texastribune.org/2026/09/21/texas-data-center-moratorium-water-energy/",
+      "stale": false
+    },
+    {
+      "id": "C025",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "Data Center Watch (10a Labs), as relayed by Gizmodo, counted 75 projects worth about $130 billion blocked or delayed in Q1 2026.",
+      "value": 130,
+      "unit": "USD bn (Q1 2026)",
+      "original_reporter": "Data Center Watch (10a Labs)",
+      "source_id": "S31",
+      "source_name": "Gizmodo",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://gizmodo.com/nearly-200-billion-worth-of-data-center-projects-have-been-blocked-or-delayed-this-year-2000815054",
+      "stale": null
+    },
+    {
+      "id": "C026",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "Data Center Watch (10a Labs), as relayed by Gizmodo, counted 45 projects worth about $68 billion blocked or delayed from April to June 2026.",
+      "value": 68,
+      "unit": "USD bn (Q2 2026)",
+      "original_reporter": "Data Center Watch (10a Labs)",
+      "source_id": "S31",
+      "source_name": "Gizmodo",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://gizmodo.com/nearly-200-billion-worth-of-data-center-projects-have-been-blocked-or-delayed-this-year-2000815054",
+      "stale": null
+    },
+    {
+      "id": "C027",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "SemiAnalysis argues most projects flagged as 'canceled' are early-stage ones without site control, financing or interconnection. It says its 2026 North America hyperscaler self-build forecast moved only about 1%, and colocation under 5%, over six months.",
+      "value": null,
+      "unit": null,
+      "original_reporter": "SemiAnalysis",
+      "source_id": "S32",
+      "source_name": "SemiAnalysis",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://newsletter.semianalysis.com/p/stop-saying-half-of-2026-us-datacenter",
+      "stale": null
+    },
+    {
+      "id": "C029",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "The dcmap.us tracker lists 56 formal public actions across 25 states (22 statewide, 34 local), with entries through August 2026.",
+      "value": 56,
+      "unit": "actions",
+      "original_reporter": "dcmap.us",
+      "source_id": "S33",
+      "source_name": "dcmap.us: US Data Center Policy Tracker",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://dcmap.us/insights/policy/",
+      "stale": null
+    },
+    {
+      "id": "C030",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Public opinion",
+      "statement": "Gallup, in a poll fielded 2026-03-02 to 2026-03-18 (1,000 adults, margin of error about 4 points), found 71% oppose construction of AI data centers in their local area and 27% favor. 48% strongly oppose.",
+      "value": 71,
+      "unit": "% oppose",
+      "original_reporter": "Gallup",
+      "source_id": "S35",
+      "source_name": "Gallup: Americans Oppose AI Data Centers in Their Area",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Primary document",
+      "link": "https://news.gallup.com/poll/709772/americans-oppose-data-centers-area.aspx",
+      "stale": null
+    },
+    {
+      "id": "C031",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Public opinion",
+      "statement": "The UMass Amherst Poll, fielded 2026-08-21 to 2026-08-26 (1,000 respondents, margin of error 3.5 points), found 65% oppose, 11% support and 24% neither, when asked about an AI data center in their local community.",
+      "value": 65,
+      "unit": "% oppose",
+      "original_reporter": "UMass Amherst Poll",
+      "source_id": "S36",
+      "source_name": "UMass Amherst Poll (Sept 2026 national)",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Primary document",
+      "link": "https://www.umass.edu/poll/about/reports/2026-09-national-public-opinion-poll-2",
+      "stale": null
+    },
+    {
+      "id": "C032",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Public opinion",
+      "statement": "Embold Research, for Heatmap, fielded 2026-08-08 to 2026-08-13 (2,045 registered voters, margin of error 2.3 points) and found 75% would oppose a data center built near their home, 61% strongly (per Heatmap News).",
+      "value": 75,
+      "unit": "% oppose",
+      "original_reporter": "Embold Research for Heatmap",
+      "source_id": "S37",
+      "source_name": "Heatmap News: Embold Research poll",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://heatmap.news/daily/data-center-opposition-poll-collapse",
+      "stale": null
+    },
+    {
+      "id": "C033",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Public opinion",
+      "statement": "Heatmap's four polls show opposition rising from 42% (Aug 2025, with 43% in support) to 51% (Feb 2026), 70% (May 2026) and 75% (Aug 2026), per Heatmap News.",
+      "value": "42 to 75",
+      "unit": "% oppose, Aug 2025 to Aug 2026",
+      "original_reporter": "Embold Research for Heatmap",
+      "source_id": "S37",
+      "source_name": "Heatmap News: Embold Research poll",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://heatmap.news/daily/data-center-opposition-poll-collapse",
+      "stale": null
+    },
+    {
+      "id": "C035",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Ballot measure",
+      "statement": "Ballotpedia counts 38 data-center-related ballot measures in eight states in 2026, including 20 in Ohio across 17 jurisdictions. 34 of the 38 are on the 2026-11-03 ballot. In the four earlier 2026 votes, voters favored greater restrictions each time.",
+      "value": 38,
+      "unit": "measures (2026)",
+      "original_reporter": "Ballotpedia",
+      "source_id": "S38",
+      "source_name": "Ballotpedia News: data center ballot measures",
+      "attribution": "Press report",
+      "reported_on": "2026-09-21",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://news.ballotpedia.org/2026/09/21/ohio-leads-states-in-number-of-local-ballot-measures-on-data-centers-for-2026/",
+      "stale": false
+    }
+  ],
+  "discrepancies": [
+    {
+      "id": "D006",
+      "project_id": "TX-STATE",
+      "type": "No primary document",
+      "claim_a": "C022",
+      "claim_b": "C024",
+      "description": "Time News and the Texas Tribune both report Texas action on data centers. The Tribune gives dated orders: grid connections (2026-08-03), water reporting (2026-09-15) and environmental permits (2026-09-21). The governor's own orders have not yet been pulled.",
+      "status": "Open",
+      "noted_on": "2026-09-24",
+      "what_would_settle_it": "Governor's office press releases or executive orders; TCEQ and ERCOT notices."
+    },
+    {
+      "id": "D008",
+      "project_id": "NATIONAL-US",
+      "type": "Source vs. source",
+      "claim_a": "C025",
+      "claim_b": "C027",
+      "description": "Reports differ on how much capacity is really affected. Data Center Watch counts projects blocked or delayed by opposition. SemiAnalysis says most 'canceled' projects were early-stage and never had 2026 commitments. The two may count different things.",
+      "status": "Open",
+      "noted_on": "2026-09-24",
+      "what_would_settle_it": "Read both methodologies; compare project lists."
+    },
+    {
+      "id": "D009",
+      "project_id": "NATIONAL-US",
+      "type": "Source vs. source",
+      "claim_a": "C030",
+      "claim_b": "C031",
+      "description": "The polls agree on direction but differ on level. Gallup found 71% oppose and 27% favor; UMass found 65% oppose, 11% support and 24% neither. The UMass question offered a 'neither' option, which can lower measured opposition. Dates, wording and methods also differ.",
+      "status": "Open",
+      "noted_on": "2026-09-24",
+      "what_would_settle_it": "Compare exact questions and response options across the polls."
+    }
+  ],
+  "sources": [
+    {
+      "id": "S30",
+      "name": "Texas Tribune",
+      "kind": "Press",
+      "link": "https://www.texastribune.org/2026/09/21/texas-data-center-moratorium-water-energy/"
+    },
+    {
+      "id": "S31",
+      "name": "Gizmodo",
+      "kind": "Press",
+      "link": "https://gizmodo.com/nearly-200-billion-worth-of-data-center-projects-have-been-blocked-or-delayed-this-year-2000815054"
+    },
+    {
+      "id": "S32",
+      "name": "SemiAnalysis",
+      "kind": "Research newsletter",
+      "link": "https://newsletter.semianalysis.com/p/stop-saying-half-of-2026-us-datacenter"
+    },
+    {
+      "id": "S33",
+      "name": "dcmap.us: US Data Center Policy Tracker",
+      "kind": "Existing tracker",
+      "link": "https://dcmap.us/insights/policy/"
+    },
+    {
+      "id": "S35",
+      "name": "Gallup: Americans Oppose AI Data Centers in Their Area",
+      "kind": "Poll (original release)",
+      "link": "https://news.gallup.com/poll/709772/americans-oppose-data-centers-area.aspx"
+    },
+    {
+      "id": "S36",
+      "name": "UMass Amherst Poll (Sept 2026 national)",
+      "kind": "Poll (original release)",
+      "link": "https://www.umass.edu/poll/about/reports/2026-09-national-public-opinion-poll-2"
+    },
+    {
+      "id": "S37",
+      "name": "Heatmap News: Embold Research poll",
+      "kind": "Press report of a poll",
+      "link": "https://heatmap.news/daily/data-center-opposition-poll-collapse"
+    },
+    {
+      "id": "S38",
+      "name": "Ballotpedia News: data center ballot measures",
+      "kind": "Reference / press",
+      "link": "https://news.ballotpedia.org/2026/09/21/ohio-leads-states-in-number-of-local-ballot-measures-on-data-centers-for-2026/"
+    }
+  ],
+  "locked": {
+    "projects_profiled": 1,
+    "claims": 23,
+    "discrepancies": 6,
+    "situations": 18
+  }
+}

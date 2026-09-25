@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GridZilla Watchlist</title>
+<meta name="description" content="What has been reported about data center pauses, votes and public opinion, with sources.">
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--ink:#1a2433;--mute:#5b6778;--line:#dde3ea;--navy:#1F3A5F;--teal:#2A7F8E;
+--ok-bg:#e3f1e5;--ok:#1e6b34;--warn-bg:#fff3d6;--warn:#8a5a00;--bad-bg:#f3e6e6;--bad:#8a2c2c;--link:#1155cc}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#182029;--ink:#e7ecf2;--mute:#9aa7b8;--line:#2a3542;
+--navy:#2f5488;--teal:#4fb0c1;--ok-bg:#183524;--ok:#7fd39a;--warn-bg:#3a2d10;--warn:#f0c26b;--bad-bg:#3a1f1f;--bad:#f0a0a0;--link:#8ab4ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 48px}
+header{background:var(--navy);color:#fff;padding:28px 0 22px}
+header .wrap{padding-bottom:0}
+h1{margin:0 0 6px;font-size:1.6rem;line-height:1.2}
+header p{margin:0;color:#d5e0ee;max-width:60ch}
+.pill{display:inline-block;margin-top:12px;background:rgba(255,255,255,.14);padding:4px 12px;border-radius:999px;font-size:.85rem}
+.back{color:#d5e0ee;font-size:.9rem;text-decoration:none;display:inline-block;margin-bottom:10px}
+h2{font-size:1.15rem;margin:34px 0 4px;color:var(--navy)}
+@media (prefers-color-scheme:dark){h2{color:var(--teal)}}
+.sub{margin:0 0 12px;color:var(--mute);font-size:.92rem}
+.grid{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.big{font-size:1.9rem;font-weight:700;line-height:1.1}
+.unit{font-size:.85rem;color:var(--mute);margin-left:6px;font-weight:400}
+.stmt{margin:6px 0 10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.82rem;color:var(--mute)}
+.chip{padding:2px 9px;border-radius:999px;font-weight:600;font-size:.76rem}
+.c-Primary{background:var(--ok-bg);color:var(--ok)}
+.c-Reported{background:var(--warn-bg);color:var(--warn)}
+.c-Unverified{background:var(--bad-bg);color:var(--bad)}
+a{color:var(--link)}
+.diff{border-left:4px solid var(--teal)}
+.diff h3{margin:0 0 4px;font-size:.98rem}
+.lock{border:2px dashed var(--line);text-align:center;padding:20px 16px}
+.lock b{font-size:1.05rem}
+.btn{display:inline-block;margin-top:10px;background:var(--navy);color:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;font-weight:600}
+footer{margin-top:36px;font-size:.85rem;color:var(--mute)}
+footer ul{padding-left:18px}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin-top:14px}
+@media (min-width:640px){.grid.two{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="back" href="index.html">&larr; Back to the map</a>
+  <h1>GridZilla Watchlist</h1>
+  <p>What has been reported about data center pauses, votes and public opinion. Every line names its source.</p>
+  <span class="pill" id="asof">Loading&hellip;</span>
+</div></header>
+<main class="wrap">
+  <div class="note" id="disclaimer"></div>
+  <div id="app"></div>
+</main>
+<script>
+(function () {
+  var ISSUE = "https://github.com/rayj3088/gridzilla/issues/new";
+  var app = document.getElementById("app");
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function link(text, href) {
+    var a = el("a", null, text);
+    a.href = href; a.target = "_blank"; a.rel = "noopener";
+    return a;
+  }
+  function section(title, sub) {
+    app.appendChild(el("h2", null, title));
+    if (sub) app.appendChild(el("p", "sub", sub));
+    var g = el("div", "grid");
+    app.appendChild(g);
+    return g;
+  }
+  function claimCard(c, big) {
+    var card = el("div", "card");
+    if (big && c.value != null && c.value !== "") {
+      var b = el("div", "big", String(c.value));
+      if (c.unit) b.appendChild(el("span", "unit", c.unit));
+      card.appendChild(b);
+    }
+    card.appendChild(el("p", "stmt", c.statement));
+    var m = el("div", "meta");
+    var conf = el("span", "chip c-" + c.confidence.split(" ")[0], c.confidence);
+    m.appendChild(conf);
+    m.appendChild(link(c.source_name || "Source", c.link));
+    if (c.reported_on) m.appendChild(el("span", null, "Reported " + c.reported_on));
+    if (c.stale) m.appendChild(el("span", null, "Not re-checked recently"));
+    m.appendChild(el("span", null, c.id));
+    m.appendChild(link("Dispute this",
+      ISSUE + "?title=" + encodeURIComponent("Dispute " + c.id) +
+      "&body=" + encodeURIComponent("Entry: " + c.id + "\nWhat is wrong, and a link to a source that shows it:\n")));
+    card.appendChild(m);
+    return card;
+  }
+
+  fetch("watchlist_public.json", { cache: "no-cache" }).then(function (r) {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  }).then(function (d) {
+    document.getElementById("asof").textContent = "Data as of " + d.as_of;
+    document.getElementById("disclaimer").textContent = d.disclaimer;
+
+    var by = function (t) { return d.claims.filter(function (c) { return c.fact_type === t; }); };
+
+    var g1 = section("What people think",
+      "National polls and votes. Polls agree on direction but differ on wording and answer options, so the numbers vary.");
+    g1.className = "grid two";
+    by("Public opinion").forEach(function (c) { g1.appendChild(claimCard(c, true)); });
+    by("Ballot measure").forEach(function (c) { g1.appendChild(claimCard(c, true)); });
+
+    var g2 = section("Government actions",
+      "State orders and rules, as reported. Original orders are being added as we pull them.");
+    by("State policy").forEach(function (c) { g2.appendChild(claimCard(c, false)); });
+
+    var g3 = section("Industry counts", "Counts from trackers and analysts. Definitions differ, see below.");
+    g3.className = "grid two";
+    by("Industry-wide count").forEach(function (c) { g3.appendChild(claimCard(c, true)); });
+
+    if (d.discrepancies.length) {
+      var g4 = section("Where reports differ",
+        "A difference is not an accusation. Sources may count different things.");
+      d.discrepancies.forEach(function (x) {
+        var card = el("div", "card diff");
+        card.appendChild(el("h3", null, x.type + " (" + x.id + ")"));
+        card.appendChild(el("p", "stmt", x.description));
+        var m = el("div", "meta");
+        m.appendChild(el("span", null, "Compares " + x.claim_a + (x.claim_b ? " and " + x.claim_b : "")));
+        m.appendChild(el("span", null, "Status: " + x.status));
+        card.appendChild(m);
+        if (x.what_would_settle_it) card.appendChild(el("p", "sub", "What would settle it: " + x.what_would_settle_it));
+        g4.appendChild(card);
+      });
+    }
+
+    var lk = d.locked || {};
+    var box = el("div", "card lock");
+    box.appendChild(el("b", null, "Project-level detail is in the paid API"));
+    box.appendChild(el("p", "sub",
+      "Financing, contract and legal signals for individual projects (" + (lk.projects_profiled || 0) +
+      " profiled so far, " + (lk.claims || 0) + " sourced claims, " + (lk.discrepancies || 0) +
+      " flagged differences), plus full history and alerts."));
+    var b = el("a", "btn", "See plans"); b.href = "index.html";
+    box.appendChild(b);
+    app.appendChild(el("h2", null, "Want more?"));
+    app.appendChild(box);
+
+    var f = el("footer");
+    f.appendChild(el("p", null, "How we write this:"));
+    var ul = el("ul");
+    ["Every fact names who said it and links to it.",
+     "We write “reported” or “says,” not “is,” unless we have opened the official record ourselves.",
+     "We record what each source said. We do not guess at motives or predict outcomes.",
+     "Found a mistake? Use “Dispute this” on any entry and we will review it."].forEach(function (t) {
+      ul.appendChild(el("li", null, t));
+    });
+    f.appendChild(ul);
+    f.appendChild(el("p", null, "Sources used on this page:"));
+    var sl = el("ul");
+    d.sources.forEach(function (s) {
+      var li = el("li");
+      if (s.link) li.appendChild(link(s.name, s.link)); else li.textContent = s.name;
+      li.appendChild(document.createTextNode(" (" + s.kind + ")"));
+      sl.appendChild(li);
+    });
+    f.appendChild(sl);
+    app.appendChild(f);
+  }).catch(function (e) {
+    document.getElementById("asof").textContent = "Could not load data";
+    app.appendChild(el("p", "sub", "The data file could not be loaded (" + e.message + "). Try again in a minute."));
+  });
+})();
+</script>
+</body>
+</html>
