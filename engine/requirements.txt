@@ -1,4 +1,6 @@
-# The engine uses the Python standard library only.
+# The engine is standard library only, except:
+openpyxl   # needed by the lbnl_queued_up connector, to read its .xlsx file
+
 # Optional, once you add heavier connectors:
 # requests
 # pandas

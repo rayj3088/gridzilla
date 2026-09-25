@@ -190,7 +190,7 @@ dialog textarea{width:100%;height:50vh;font:12px/1.45 ui-monospace,Menlo,Consola
       <div class="field">
         <label>Grid service</label>
         <div class="seg" id="flexSeg"></div>
-        <p class="hint">Flexible service means agreeing to be cut back a small share of the year. Utilities only count flexibility they can verify (FLEX-1).</p>
+        <p class="hint">Flexible service means agreeing to be cut back a small share of the year. This tool does not verify flexibility claims yet (see Roadmap, "FLEX-1") &mdash; utilities decide what they'll actually count.</p>
       </div>
       <div class="field">
         <label style="justify-content:flex-start;gap:10px"><span class="switch"><input type="checkbox" id="subPipe"><span></span></span> Subtract tracked construction from headroom</label>
@@ -717,11 +717,17 @@ function renderRegions() {
   const sc = scenario();
   const cell = (v, fmt) => v == null ? '<td>n/a</td>' : `<td>${fmt(v)}</td>`;
   const n = v => v.toLocaleString();
-  let h = '<thead><tr><th>Region</th><th>Headroom</th><th>Tracked construction</th><th>Left</th><th>Standard campuses</th><th>Your campuses</th></tr></thead><tbody>';
-  sc.rows.forEach(x => { h += `<tr><td>${esc(x.r.name)}</td>${cell(x.head, fmtGW)}<td>${x.pipe ? fmtGW(x.pipe) : '&ndash;'}</td>${cell(x.rem, fmtGW)}${cell(x.std, n)}${cell(x.yours, n)}</tr>`; });
-  h += `<tr class="total"><td>United States</td>${cell(sc.total.head, fmtGW)}<td>${fmtGW(sc.total.pipe)}</td>${cell(sc.total.rem, fmtGW)}${sc.total.head == null ? '<td>n/a</td><td>n/a</td>' : `<td>${n(sc.total.std)}</td><td>${n(sc.total.yours)}</td>`}</tr></tbody>`;
+  const hasQueue = S.queueCapacity && Object.keys(S.queueCapacity).length > 0;
+  const queueCell = id => { const v = hasQueue ? S.queueCapacity[id] : null; return v == null ? '<td>&ndash;</td>' : `<td>${fmtGW(v)}</td>`; };
+  let h = '<thead><tr><th>Region</th><th>Headroom</th><th>Tracked construction</th><th>Left</th>' +
+    (hasQueue ? '<th>New supply in queue</th>' : '') +
+    '<th>Standard campuses</th><th>Your campuses</th></tr></thead><tbody>';
+  sc.rows.forEach(x => { h += `<tr><td>${esc(x.r.name)}</td>${cell(x.head, fmtGW)}<td>${x.pipe ? fmtGW(x.pipe) : '&ndash;'}</td>${cell(x.rem, fmtGW)}${hasQueue ? queueCell(x.r.id) : ''}${cell(x.std, n)}${cell(x.yours, n)}</tr>`; });
+  const totalQueue = hasQueue ? Object.values(S.queueCapacity).reduce((a, v) => a + (v || 0), 0) : null;
+  h += `<tr class="total"><td>United States</td>${cell(sc.total.head, fmtGW)}<td>${fmtGW(sc.total.pipe)}</td>${cell(sc.total.rem, fmtGW)}${hasQueue ? cell(totalQueue, fmtGW) : ''}${sc.total.head == null ? '<td>n/a</td><td>n/a</td>' : `<td>${n(sc.total.std)}</td><td>${n(sc.total.yours)}</td>`}</tr></tbody>`;
   $('regionTable').innerHTML = h;
-  $('regionNote').textContent = PRIMARY_TOTALS + ' Tracked construction only covers markets with published figures, so real queues are longer.';
+  $('regionNote').textContent = PRIMARY_TOTALS + ' Tracked construction only covers markets with published figures, so real queues are longer.' +
+    (hasQueue ? ' "New supply in queue" is generation and storage capacity currently proposed and awaiting interconnection (LBNL Queued Up) -- not headroom, and not subtracted from it: new supply waiting in line, not room available today.' : '');
 }
 function renderLayers() {
   document.querySelectorAll('[data-layer]').forEach(i => { i.checked = !!S.layers[i.dataset.layer]; });
@@ -830,6 +836,12 @@ function importText(kind, text) {
     if (j.regions && typeof j.regions === 'object') { S.regionOverrides = j.regions; got.push('region headroom'); }
     if (j.risk && typeof j.risk === 'object') { Object.assign(S.risk, j.risk); S.riskDemo = false; got.push(Object.keys(j.risk).length + ' risk scores'); }
     if (j.lines && Array.isArray(j.lines.features)) { RT.lines = j.lines; S.src.hifld_lines = true; RT.status.hifld_lines = { kind: 'live', text: 'Imported from the engine: ' + j.lines.features.length + ' features' }; got.push('transmission lines'); }
+    if (j.pipeline_capacity_gw && typeof j.pipeline_capacity_gw.regions === 'object') {
+      S.queueCapacity = j.pipeline_capacity_gw.regions;
+      S.src.lbnl_queued_up = true;
+      RT.status.lbnl_queued_up = { kind: 'live', text: 'Imported from the engine: ' + (j.pipeline_capacity_gw.rows_counted || 0) + ' active queue entries' };
+      got.push('interconnection queue capacity');
+    }
     (j.sources || []).forEach(id => { RT.status[id] = { kind: 'live', text: 'Imported from the engine' }; });
     toast(got.length ? 'Imported ' + got.join(', ') : 'Nothing recognized in that file');
   }

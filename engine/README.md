@@ -5,8 +5,11 @@
 
 Then open the app, go to Sources, and press "Import engine output".
 
-Standard library only, so there is nothing to install. API keys come from the
-environment, never from the config file:
+Standard library only, except `lbnl_queued_up`, which needs one package:
+
+    pip install -r engine/requirements.txt
+
+API keys come from the environment, never from the config file:
 
     export GRIDZILLA_EIA_OPEN_DATA_KEY=...
 

@@ -4,8 +4,10 @@ GridZilla ingestion engine.
 
 Reads config/sources.yaml (the same switches the app exports), fetches the
 sources that have a connector, and writes out/engine-output.json in the shape
-index.html imports. Standard library only. Safe by default: --plan just tells
-you what is switched on; nothing leaves the machine until you pass --fetch.
+index.html imports. Standard library only, except the lbnl_queued_up
+connector, which needs `openpyxl` (see requirements.txt) to read a real
+.xlsx file. Safe by default: --plan just tells you what is switched on;
+nothing leaves the machine until you pass --fetch.
 
     python3 engine/gridzilla_engine.py --plan
     python3 engine/gridzilla_engine.py --fetch
@@ -32,6 +34,24 @@ CONFIG = os.path.join(ROOT, "config", "sources.yaml")
 OUT_DIR = os.path.join(ROOT, "out")
 OUT_FILE = os.path.join(OUT_DIR, "engine-output.json")
 TIMEOUT = 60
+
+# State/DC -> GridZilla grid region. Keep this in sync by hand with
+# STATES in index.html and STATE_REGION in gridzilla-api/src/sites.js --
+# three copies because this engine, the browser app, and the paid worker
+# each run in a different place with no shared module between them.
+STATE_REGION = {
+    "AL": "SOCO", "AK": "OTHER", "AZ": "OTHER", "AR": "MISO", "CA": "OTHER",
+    "CO": "OTHER", "CT": "OTHER", "DE": "PJM", "DC": "PJM", "FL": "OTHER",
+    "GA": "SOCO", "HI": "OTHER", "ID": "OTHER", "IL": "PJM", "IN": "MISO",
+    "IA": "MISO", "KS": "SPP", "KY": "OTHER", "LA": "MISO", "ME": "OTHER",
+    "MD": "PJM", "MA": "OTHER", "MI": "MISO", "MN": "MISO", "MS": "MISO",
+    "MO": "MISO", "MT": "OTHER", "NE": "SPP", "NV": "OTHER", "NH": "OTHER",
+    "NJ": "PJM", "NM": "OTHER", "NY": "OTHER", "NC": "OTHER", "ND": "MISO",
+    "OH": "PJM", "OK": "SPP", "OR": "OTHER", "PA": "PJM", "RI": "OTHER",
+    "SC": "OTHER", "SD": "SPP", "TN": "OTHER", "TX": "ERCOT", "UT": "OTHER",
+    "VT": "OTHER", "VA": "PJM", "WA": "OTHER", "WV": "PJM", "WI": "MISO",
+    "WY": "OTHER"
+}
 
 
 # --------------------------------------------------------------- config
@@ -99,11 +119,84 @@ def connect_hifld_subs(source: dict) -> dict:
     return {"substations": doc}
 
 
+# LBNL republishes this yearly at a dated URL; update when a new edition
+# ships (check https://emp.lbl.gov/queues for the current link).
+LBNL_QUEUED_UP_XLSX_URL = (
+    "https://emp.lbl.gov/sites/default/files/2026-05/"
+    "LBNL_Ix_Queue_Data_File_thru2025.xlsx"
+)
+
+
+def connect_lbnl_queued_up(source: dict) -> dict:
+    """
+    Free, no-login download of LBNL's "Queued Up" interconnection-queue
+    workbook (CC BY 4.0, Lawrence Berkeley National Laboratory). Sums MW of
+    generation + storage capacity currently *active* in queue -- proposed,
+    not yet built, not withdrawn -- by GridZilla grid region.
+
+    This is NOT the same measurement as the Duke headroom study (room
+    available on the grid today) -- it's how much new supply is waiting in
+    line to connect. Treat it as context alongside the Duke numbers, not a
+    replacement: more queued capacity can eventually raise real headroom
+    once built, or signal a region where queues are backed up.
+
+    Needs `openpyxl` (see requirements.txt) -- the one dependency this
+    otherwise-stdlib-only engine has, because the file is a real .xlsx.
+    """
+    try:
+        import openpyxl
+    except ImportError as exc:
+        raise RuntimeError("needs `pip install openpyxl` (see requirements.txt)") from exc
+
+    req = urllib.request.Request(LBNL_QUEUED_UP_XLSX_URL,
+                                  headers={"User-Agent": "gridzilla-engine"})
+    os.makedirs(OUT_DIR, exist_ok=True)
+    tmp_path = os.path.join(OUT_DIR, "_lbnl_queued_up.xlsx")
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as r, open(tmp_path, "wb") as fh:
+        fh.write(r.read())
+    try:
+        wb = openpyxl.load_workbook(tmp_path, read_only=True, data_only=True)
+        ws = wb["03. Complete Queue Data"]
+        # Row 1 is a "return to contents" link, row 2 is the header; data from row 3.
+        by_region_mw, counted, skipped_status, skipped_state = {}, 0, 0, 0
+        for row in ws.iter_rows(min_row=3, values_only=True):
+            status, state, mw1 = row[1], row[10], row[25]
+            if status != "active":
+                skipped_status += 1
+                continue
+            region = STATE_REGION.get((state or "").upper())
+            if not region:
+                skipped_state += 1   # Canadian provinces, Mexico, or blank
+                continue
+            by_region_mw[region] = by_region_mw.get(region, 0) + (mw1 or 0)
+            counted += 1
+    finally:
+        os.remove(tmp_path)
+
+    return {"pipeline_capacity_gw": {
+        "regions": {r: round(mw / 1000, 2) for r, mw in by_region_mw.items()},
+        "meaning": (
+            "Generation + storage capacity (MW), summed to GW, currently "
+            "active in interconnection queues -- proposed, not yet built or "
+            "withdrawn -- by GridZilla grid region. Not headroom: this is "
+            "new supply waiting in line, not room available on the grid "
+            "today."
+        ),
+        "as_of": "LBNL Queued Up, 2026 edition (interconnection requests through end of 2025)",
+        "source": "https://emp.lbl.gov/queues (CC BY 4.0, Lawrence Berkeley National Laboratory)",
+        "rows_counted": counted,
+        "rows_skipped_not_active": skipped_status,
+        "rows_skipped_non_us_or_unknown_state": skipped_state
+    }}
+
+
 # Write the next one here, then add it below. A connector returns any of:
 #   {"markets": [...]} {"regions": {...}} {"risk": {...}} {"lines": geojson}
+#   or any other key -- it is merged into the output document as-is.
 CONNECTORS = {
     "hifld_lines": connect_hifld_lines,
     "hifld_subs": connect_hifld_subs,
+    "lbnl_queued_up": connect_lbnl_queued_up,
 }
 
 
@@ -148,8 +241,13 @@ def fetch(sources: list, only: str = "") -> dict:
                 else:
                     out[key] = value
             out["sources"].append(s["id"])
-            count = sum(len(v.get("features", [])) if isinstance(v, dict) else len(v)
-                        for v in piece.values())
+            def _count(v):
+                if isinstance(v, dict) and "features" in v:
+                    return len(v["features"])
+                if isinstance(v, dict) and "rows_counted" in v:
+                    return v["rows_counted"]
+                return len(v) if isinstance(v, (list, dict)) else 1
+            count = sum(_count(v) for v in piece.values())
             out["status"][s["id"]] = f"ok, {count} records"
             print(f"ok, {count} records")
         except Exception as exc:                     # a bad source never stops the run
