@@ -306,6 +306,210 @@
       "confidence": "Reported",
       "link": "https://moneywise.com/news/economy/imf-ai-debt-leverage-data-centers-2026",
       "stale": null
+    },
+    {
+      "id": "C045",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "CBRE says U.S. data center vacancy hit a record low of 1.4% in H1 2026 (0.2% in Northern Virginia), and that 80.4% of under-construction capacity is already preleased.",
+      "value": 1.4,
+      "unit": "% vacancy (H1 2026)",
+      "original_reporter": "CBRE",
+      "source_id": "S69",
+      "source_name": "CBRE: North America Data Center Trends H1 2026",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Primary document",
+      "link": "https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026",
+      "stale": null
+    },
+    {
+      "id": "C046",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "CBRE says under-construction capacity rose 24.8% to a record 7,481.1 MW, with Atlanta (2,882 MW) overtaking Northern Virginia as the top construction market.",
+      "value": 7481.1,
+      "unit": "MW under construction",
+      "original_reporter": "CBRE",
+      "source_id": "S69",
+      "source_name": "CBRE: North America Data Center Trends H1 2026",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Primary document",
+      "link": "https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026",
+      "stale": null
+    },
+    {
+      "id": "C047",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry finding",
+      "statement": "CBRE writes that \"the ability to secure local approval has become as critical to site selection as power and fiber availability,\" and that power availability and infrastructure delivery timelines remain the most decisive siting factors.",
+      "value": null,
+      "unit": null,
+      "original_reporter": "CBRE",
+      "source_id": "S69",
+      "source_name": "CBRE: North America Data Center Trends H1 2026",
+      "attribution": "Company statement",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Primary document",
+      "link": "https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026",
+      "stale": null
+    },
+    {
+      "id": "C048",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry finding",
+      "statement": "Bank of America's Karen Fang told Bloomberg: \"Readiness means all the permitting and approvals that are required, and the community support.\"",
+      "value": null,
+      "unit": null,
+      "original_reporter": "Bank of America (Karen Fang, per Bloomberg)",
+      "source_id": "S70",
+      "source_name": "Bloomberg via BNN: lenders scrutinize data center financing",
+      "attribution": "Company statement",
+      "reported_on": "2026-08-10",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.bnnbloomberg.ca/business/artificial-intelligence/2026/08/10/lenders-scrutinize-us-data-centre-financing-as-community-opposition-builds/",
+      "stale": false
+    },
+    {
+      "id": "C049",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry finding",
+      "statement": "Bloomberg reports that banks including JPMorgan, Morgan Stanley, Bank of America and KKR Capital Markets are weighing community opposition and project readiness in credit decisions, favoring welcoming states and asking for community-engagement documentation.",
+      "value": null,
+      "unit": null,
+      "original_reporter": "Bloomberg",
+      "source_id": "S70",
+      "source_name": "Bloomberg via BNN: lenders scrutinize data center financing",
+      "attribution": "Press report",
+      "reported_on": "2026-08-10",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.bnnbloomberg.ca/business/artificial-intelligence/2026/08/10/lenders-scrutinize-us-data-centre-financing-as-community-opposition-builds/",
+      "stale": false
+    },
+    {
+      "id": "C050",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "A Bloom Energy and Latitude Media survey of 156 industry respondents found 51% name power availability as a top-three concern, down from 84% in June 2025, and 28% say community opposition has worsened in the past six months.",
+      "value": 28,
+      "unit": "% say opposition worsened",
+      "original_reporter": "Bloom Energy and Latitude Media survey",
+      "source_id": "S67",
+      "source_name": "Bloom Energy and Latitude Media: Data Center Power Report 2026",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.latitudemedia.com/news/survey-as-community-scrutiny-grows-data-center-developers-turn-to-on-site-power/",
+      "stale": null
+    },
+    {
+      "id": "C051",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "Urban Land, citing Bloomberg, reports local opposition has stalled or blocked at least 48 U.S. data center projects (about $156 billion), that cancellations rose from 6 in 2024 to 25 in 2025, and that about 188 local groups operate in 40 states.",
+      "value": 156,
+      "unit": "USD bn stalled or blocked",
+      "original_reporter": "Bloomberg (per Urban Land)",
+      "source_id": "S68",
+      "source_name": "Urban Land Institute: The Rising Cost of Data Center Pushback",
+      "attribution": "Press report",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://urbanland.uli.org/capital-markets-and-finance/economist-snapshot-the-rising-cost-of-data-center-pushback",
+      "stale": null
+    },
+    {
+      "id": "C052",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "ComputeLaw reports the U.S. had 159 million fiber miles in 2024, projected to reach 373 million by 2029, and that long-haul route miles are expected to grow from 95,000 to 187,000.",
+      "value": 159,
+      "unit": "million fiber miles (2024)",
+      "original_reporter": "ComputeLaw",
+      "source_id": "S64",
+      "source_name": "ComputeLaw: long-haul and middle-mile fiber",
+      "attribution": "Press report",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://computelaw.blog/power/long-haul-middle-mile-fiber-ai-data-centers/",
+      "stale": null
+    },
+    {
+      "id": "C053",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "ComputeLaw reports NTIA's Middle Mile Program has awarded $980 million to 36 organizations to fund more than 12,500 miles of new middle-mile fiber.",
+      "value": 980,
+      "unit": "USD million",
+      "original_reporter": "NTIA (per ComputeLaw)",
+      "source_id": "S64",
+      "source_name": "ComputeLaw: long-haul and middle-mile fiber",
+      "attribution": "Press report",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://computelaw.blog/power/long-haul-middle-mile-fiber-ai-data-centers/",
+      "stale": null
+    },
+    {
+      "id": "C056",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "POWER magazine, citing a Wood Mackenzie Q2 2025 survey, reports lead times of 128 weeks for power transformers, 144 weeks for generator step-up units, and 44 weeks for switchgear.",
+      "value": 128,
+      "unit": "weeks (power transformers)",
+      "original_reporter": "Wood Mackenzie (per POWER)",
+      "source_id": "S62",
+      "source_name": "POWER magazine: transformers in 2026",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.powermag.com/transformers-in-2026-shortage-scramble-or-self-inflicted-crisis/",
+      "stale": null
+    },
+    {
+      "id": "C057",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "POWER magazine, citing Wood Mackenzie, reports a 30% supply deficit for power transformers and 10% for distribution transformers in 2025, with power transformer demand up 119% and prices up 77% since 2019, and data centers named as a major driver.",
+      "value": 30,
+      "unit": "% power transformer supply deficit (2025)",
+      "original_reporter": "Wood Mackenzie (per POWER)",
+      "source_id": "S62",
+      "source_name": "POWER magazine: transformers in 2026",
+      "attribution": "Dataset estimate",
+      "reported_on": null,
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://www.powermag.com/transformers-in-2026-shortage-scramble-or-self-inflicted-crisis/",
+      "stale": null
+    },
+    {
+      "id": "C058",
+      "project_id": "NATIONAL-US",
+      "fact_type": "Industry-wide count",
+      "statement": "ITIF, citing a Wall Street Journal article of 2025-11-29, says the construction industry faced a 439,000-worker shortage driven by data center growth, and that data center construction roles pay up to 30% more than typical construction jobs.",
+      "value": 439000,
+      "unit": "workers short",
+      "original_reporter": "Wall Street Journal (per ITIF)",
+      "source_id": "S63",
+      "source_name": "ITIF: construction worker shortage",
+      "attribution": "Press report",
+      "reported_on": "2026-01-12",
+      "retrieved_on": "2026-09-24",
+      "confidence": "Reported",
+      "link": "https://itif.org/publications/2026/01/12/construction-industry-facing-worker-shortage-driven-by-growth-of-data-centers/",
+      "stale": true
     }
   ],
   "discrepancies": [
@@ -352,6 +556,17 @@
       "status": "Open",
       "noted_on": "2026-09-24",
       "what_would_settle_it": "The SEC staff guidance letter."
+    },
+    {
+      "id": "D012",
+      "project_id": "NATIONAL-US",
+      "type": "Source vs. source",
+      "claim_a": "C025",
+      "claim_b": "C051",
+      "description": "Counts of projects hit by local opposition differ. Data Center Watch counts 75 projects (about $130 billion) blocked or delayed in Q1 2026 alone. A Bloomberg count cited by Urban Land says at least 48 projects (about $156 billion) stalled or blocked. Periods and definitions differ.",
+      "status": "Open",
+      "noted_on": "2026-09-24",
+      "what_would_settle_it": "Compare the two methodologies and project lists."
     }
   ],
   "sources": [
@@ -426,12 +641,108 @@
       "name": "Moneywise: IMF and JPMorgan on AI data center debt",
       "kind": "Press",
       "link": "https://moneywise.com/news/economy/imf-ai-debt-leverage-data-centers-2026"
+    },
+    {
+      "id": "S62",
+      "name": "POWER magazine: transformers in 2026",
+      "kind": "Trade press",
+      "link": "https://www.powermag.com/transformers-in-2026-shortage-scramble-or-self-inflicted-crisis/"
+    },
+    {
+      "id": "S63",
+      "name": "ITIF: construction worker shortage",
+      "kind": "Think tank note",
+      "link": "https://itif.org/publications/2026/01/12/construction-industry-facing-worker-shortage-driven-by-growth-of-data-centers/"
+    },
+    {
+      "id": "S64",
+      "name": "ComputeLaw: long-haul and middle-mile fiber",
+      "kind": "Law-firm blog",
+      "link": "https://computelaw.blog/power/long-haul-middle-mile-fiber-ai-data-centers/"
+    },
+    {
+      "id": "S67",
+      "name": "Bloom Energy and Latitude Media: Data Center Power Report 2026",
+      "kind": "Survey",
+      "link": "https://www.latitudemedia.com/news/survey-as-community-scrutiny-grows-data-center-developers-turn-to-on-site-power/"
+    },
+    {
+      "id": "S68",
+      "name": "Urban Land Institute: The Rising Cost of Data Center Pushback",
+      "kind": "Industry magazine",
+      "link": "https://urbanland.uli.org/capital-markets-and-finance/economist-snapshot-the-rising-cost-of-data-center-pushback"
+    },
+    {
+      "id": "S69",
+      "name": "CBRE: North America Data Center Trends H1 2026",
+      "kind": "Broker research (original)",
+      "link": "https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026"
+    },
+    {
+      "id": "S70",
+      "name": "Bloomberg via BNN: lenders scrutinize data center financing",
+      "kind": "Press",
+      "link": "https://www.bnnbloomberg.ca/business/artificial-intelligence/2026/08/10/lenders-scrutinize-us-data-centre-financing-as-community-opposition-builds/"
     }
   ],
   "locked": {
     "projects_profiled": 2,
-    "claims": 27,
+    "claims": 29,
     "discrepancies": 7,
-    "situations": 28
-  }
+    "situations": 28,
+    "readiness_items": 42,
+    "readiness_categories": 10
+  },
+  "factors": [
+    {
+      "category": "Power and grid",
+      "why_buyers_care": "CBRE says power availability and infrastructure delivery timelines remain the most decisive siting factors (C047).",
+      "layer_status": "Live: queue capacity and headroom"
+    },
+    {
+      "category": "Renewables",
+      "why_buyers_care": "Developers are moving toward on-site power as community scrutiny grows (survey, C050).",
+      "layer_status": "Estimator live in the API. State totals: planned"
+    },
+    {
+      "category": "Fiber and connectivity",
+      "why_buyers_care": "CBRE names fiber alongside power (C047).",
+      "layer_status": "Signals only. No route lines"
+    },
+    {
+      "category": "Water",
+      "why_buyers_care": "Texas ordered water-use reporting penalties (C023). Water is a stated driver of local opposition.",
+      "layer_status": "Planned"
+    },
+    {
+      "category": "Land and permitting",
+      "why_buyers_care": "Local approval is now as critical as power and fiber (C047).",
+      "layer_status": "Claims only"
+    },
+    {
+      "category": "Local politics and community",
+      "why_buyers_care": "Lenders are weighing community opposition (C049). At least 48 projects were stalled or blocked (C051).",
+      "layer_status": "Claims and free page"
+    },
+    {
+      "category": "Financing and counterparties",
+      "why_buyers_care": "Bank of America defines readiness as permits, approvals and community support (C048).",
+      "layer_status": "Claims (paid)"
+    },
+    {
+      "category": "Supporting industries and workforce",
+      "why_buyers_care": "Power transformer lead times run 128 weeks and construction faces a reported 439,000-worker shortage (C056, C058).",
+      "layer_status": "Planned (county counts)"
+    },
+    {
+      "category": "Fuel and on-site energy",
+      "why_buyers_care": "On-site power is rising (survey, C050).",
+      "layer_status": "Claims only"
+    },
+    {
+      "category": "Taxes and incentives",
+      "why_buyers_care": "Tax breaks and bond terms show who is on the hook.",
+      "layer_status": "Claims only"
+    }
+  ]
 }

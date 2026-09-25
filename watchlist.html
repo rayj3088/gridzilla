@@ -129,6 +129,7 @@ footer ul{padding-left:18px}
     var g3 = section("Industry counts", "Counts from trackers and analysts. Definitions differ, see below.");
     g3.className = "grid two";
     by("Industry-wide count").forEach(function (c) { g3.appendChild(claimCard(c, true)); });
+    by("Industry finding").forEach(function (c) { g3.appendChild(claimCard(c, false)); });
 
     if (d.discrepancies.length) {
       var g4 = section("Where reports differ",
@@ -146,12 +147,28 @@ footer ul{padding-left:18px}
       });
     }
 
+    if (d.factors && d.factors.length) {
+      var gf = section("What we track",
+        "Ten readiness categories for every project. Status shows how far the data layer has come. Project-level detail is in the paid API.");
+      gf.className = "grid two";
+      d.factors.forEach(function (f) {
+        var card = el("div", "card");
+        card.appendChild(el("b", null, f.category));
+        card.appendChild(el("p", "stmt", f.why_buyers_care));
+        var m = el("div", "meta");
+        m.appendChild(el("span", "chip c-Reported", f.layer_status));
+        card.appendChild(m);
+        gf.appendChild(card);
+      });
+    }
+
     var lk = d.locked || {};
     var box = el("div", "card lock");
-    box.appendChild(el("b", null, "Project-level detail is in the paid API"));
+    box.appendChild(el("b", null, "Project-level readiness is in the paid API"));
     box.appendChild(el("p", "sub",
-      "Financing, contract and legal signals for individual projects (" + (lk.projects_profiled || 0) +
-      " profiled so far, " + (lk.claims || 0) + " sourced claims, " + (lk.discrepancies || 0) +
+      "Readiness checklists across " + (lk.readiness_categories || 10) + " categories (" + (lk.readiness_items || 0) +
+      " items so far), state solar and wind totals, a renewables sizing estimator, and financing, contract and legal signals for individual projects (" +
+      (lk.projects_profiled || 0) + " profiled, " + (lk.claims || 0) + " sourced claims, " + (lk.discrepancies || 0) +
       " flagged differences), plus full history and alerts."));
     var b = el("a", "btn", "See plans"); b.href = "index.html";
     box.appendChild(b);
