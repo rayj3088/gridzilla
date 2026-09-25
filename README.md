@@ -1,4 +1,6 @@
-# GridZilla
+# Gridwarden
+
+*Grid capacity and risk for AI data centers. For responsible expansion.*
 
 An interactive map and simulator for one question: **where can a new AI campus
 actually plug in, and how much does efficiency or flexibility change the

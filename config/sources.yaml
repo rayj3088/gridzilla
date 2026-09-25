@@ -1,4 +1,4 @@
-# GridZilla source switches, exported 2026-09-22
+# Gridwarden source switches, exported 2026-09-22
 # Read by the Python engine (universal_ingest.py). API keys are never exported.
 sources:
   - id: duke_headroom

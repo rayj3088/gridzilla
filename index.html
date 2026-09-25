@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GridZilla: where AI compute can plug in</title>
+<title>Gridwarden: grid capacity and risk for AI data centers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -141,8 +141,8 @@ dialog textarea{width:100%;height:50vh;font:12px/1.45 ui-monospace,Menlo,Consola
 </head>
 <body>
 <header class="top">
-  <span class="wordmark display">GRIDZILLA</span>
-  <span class="tag">Grid and AI compute intelligence</span>
+  <span class="wordmark display">GRIDWARDEN</span>
+  <span class="tag">Grid capacity and risk for AI data centers. For responsible expansion.</span>
   <button class="theme-btn" id="themeBtn" type="button">Theme</button>
 </header>
 <p class="headline display" id="headline" aria-live="polite"></p>
@@ -184,7 +184,7 @@ dialog textarea{width:100%;height:50vh;font:12px/1.45 ui-monospace,Menlo,Consola
       <div class="field">
         <label for="eff">Architecture efficiency <output id="effOut"></output></label>
         <input type="range" id="eff" min="0" max="95" step="5">
-        <p class="hint">A what-if: how much less grid power your hardware needs for the same compute. The 80% preset is GridZilla's design target, not a measured result.</p>
+        <p class="hint">A what-if: how much less grid power your hardware needs for the same compute. The 80% preset is Gridwarden's design target, not a measured result.</p>
         <div class="btns"><button class="btn" type="button" data-eff="0">Standard (0%)</button><button class="btn" type="button" data-eff="80">Design target (80%)</button></div>
       </div>
       <div class="field">
@@ -259,7 +259,7 @@ dialog textarea{width:100%;height:50vh;font:12px/1.45 ui-monospace,Menlo,Consola
       <div id="tiers"></div>
       <label class="hint" style="display:flex;gap:8px;align-items:flex-start;margin:10px 0">
         <input type="checkbox" id="termsOk" style="margin-top:4px">
-        <span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a>. GridZilla is a planning tool, not engineering or legal advice, and its data may be out of date.</span>
+        <span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a>. Gridwarden is a planning tool, not engineering or legal advice, and its data may be out of date.</span>
       </label>
       <div id="planButtons"></div>
       <script src="https://www.paypal.com/sdk/js?client-id=BAAUmQH1jGTWUJ49xNNnqyxVQOT1Bh4Qsmal7JB0tvKNlTouIT_pv9oa4z30mspb__VzVkTvOJ_nTJnWvc&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
@@ -896,7 +896,7 @@ function importText(kind, text) {
 }
 function reportText() {
   const sc = scenario(); const f = FLEX[sc.flex];
-  const L = ['GRIDZILLA SCENARIO REPORT', new Date().toISOString().slice(0, 10), '',
+  const L = ['GRIDWARDEN SCENARIO REPORT', new Date().toISOString().slice(0, 10), '',
     `Campus size: ${fmtMW(sc.mw)}`, `Architecture efficiency: ${sc.eff}% (what-if, not measured)`, `Grid service: ${f.long}`,
     `Grid power needed per campus: ${fmtMW(sc.need)}`, `Negatokens (power freed per campus): ${fmtMW(sc.freed)}`, ''];
   if (sc.total.head == null) L.push('Firm service: headroom not estimated; new firm loads wait in interconnection queues.');
@@ -913,7 +913,7 @@ function reportText() {
   return L.join('\n');
 }
 function sourcesYaml() {
-  const L = ['# GridZilla source switches, exported ' + new Date().toISOString().slice(0, 10), '# Read by the Python engine (universal_ingest.py). API keys are never exported.', 'sources:'];
+  const L = ['# Gridwarden source switches, exported ' + new Date().toISOString().slice(0, 10), '# Read by the Python engine (universal_ingest.py). API keys are never exported.', 'sources:'];
   SOURCES.forEach(s => { L.push(`  - id: ${s.id}`, `    organization: ${JSON.stringify(s.org)}`, `    dataset: ${JSON.stringify(s.dataset)}`, `    layer: ${s.layer.toLowerCase()}`, `    mode: ${s.mode}`, `    enabled: ${srcOn(s.id)}`); if (s.url) L.push(`    url: ${s.url}`); if (s.key) L.push('    needs_key: true'); });
   return L.join('\n');
 }

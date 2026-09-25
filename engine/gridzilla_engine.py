@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GridZilla ingestion engine.
+Gridwarden ingestion engine.
 
 Reads config/sources.yaml (the same switches the app exports), fetches the
 sources that have a connector, and writes out/engine-output.json in the shape
@@ -35,7 +35,7 @@ OUT_DIR = os.path.join(ROOT, "out")
 OUT_FILE = os.path.join(OUT_DIR, "engine-output.json")
 TIMEOUT = 60
 
-# State/DC -> GridZilla grid region. Keep this in sync by hand with
+# State/DC -> Gridwarden grid region. Keep this in sync by hand with
 # STATES in index.html and STATE_REGION in gridzilla-api/src/sites.js --
 # three copies because this engine, the browser app, and the paid worker
 # each run in a different place with no shared module between them.
@@ -132,7 +132,7 @@ def connect_lbnl_queued_up(source: dict) -> dict:
     Free, no-login download of LBNL's "Queued Up" interconnection-queue
     workbook (CC BY 4.0, Lawrence Berkeley National Laboratory). Sums MW of
     generation + storage capacity currently *active* in queue -- proposed,
-    not yet built, not withdrawn -- by GridZilla grid region.
+    not yet built, not withdrawn -- by Gridwarden grid region.
 
     This is NOT the same measurement as the Duke headroom study (room
     available on the grid today) -- it's how much new supply is waiting in
@@ -178,7 +178,7 @@ def connect_lbnl_queued_up(source: dict) -> dict:
         "meaning": (
             "Generation + storage capacity (MW), summed to GW, currently "
             "active in interconnection queues -- proposed, not yet built or "
-            "withdrawn -- by GridZilla grid region. Not headroom: this is "
+            "withdrawn -- by Gridwarden grid region. Not headroom: this is "
             "new supply waiting in line, not room available on the grid "
             "today."
         ),
@@ -257,7 +257,7 @@ def fetch(sources: list, only: str = "") -> dict:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="GridZilla ingestion engine")
+    ap = argparse.ArgumentParser(description="Gridwarden ingestion engine")
     ap.add_argument("--config", default=CONFIG)
     ap.add_argument("--plan", action="store_true", help="show what is switched on and stop")
     ap.add_argument("--fetch", action="store_true", help="fetch and write out/engine-output.json")
