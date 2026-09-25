@@ -9,5 +9,6 @@
    scaling the national totals.
 5. County-level risk instead of state-level.
 6. The API (the paid product): the same scenario math behind a stable
-   interface, batch scoring, priority refresh.
+   interface, batch scoring. (Priority refresh is planned once a licensed
+   pipeline feed is funded; not offered today.)
 7. Tie flexibility claims to FLEX-1, so "flexible" on this map means tested.
